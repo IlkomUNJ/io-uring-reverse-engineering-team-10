@@ -14,5 +14,8 @@ Score is mainly calculated from individual contributions made to the commit. The
 - [Task 4](/function_documentation.md)
 
 ## Team Members
-- Member A
+- 1313623002 : Khodijah
+
 - Member B
+
+- Member C
