@@ -16,6 +16,6 @@ Score is mainly calculated from individual contributions made to the commit. The
 ## Team Members
 - 1313623002 : Khodijah
 
-- Member B
+- 1313623025 : Micka Nurhaliza V
 
 - Member C
