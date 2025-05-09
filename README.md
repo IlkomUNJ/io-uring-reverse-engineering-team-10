@@ -18,4 +18,4 @@ Score is mainly calculated from individual contributions made to the commit. The
 
 - 1313623025 : Micka Nurhaliza V
 
-- Member C
+- 1313623059 : Nayla Putri Tsabitah
