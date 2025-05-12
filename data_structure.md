@@ -22,7 +22,7 @@ io_mapped_region | io_uring/memmap.h  | struct page **pages, void *ptr, unsigned
 | | | | io_mmap_get_region | memmap.c | return value
 | | | | io_region_validate_mmap | memmap.c | function parameter (mr)
 | | | | io_region_mmap | memmap.c | function parameter (mr)
-io_imu_folio_data | io_uring/memmap.h | (struct definition not visible in snippet)	io_check_coalesce_buffer | memmap.c | local variable (ifd)
+io_imu_folio_data | io_uring/memmap.h | (struct definition not visible in snippet) | io_check_coalesce_buffer | memmap.c | local variable (ifd)
 io_uring_region_desc | io_uring_types.h | __u64 user_addr, __u64 size, __u32 flags, __u32 mmap_offset, __u32 id, __u32 __resv[2] | io_region_pin_pages | memmap.c | function parameter (reg)
 | | | | io_region_allocate_pages | memmap.c | function parameter (reg)
 | | | | io_create_region | memmap.c | function parameter (reg)
@@ -68,7 +68,7 @@ io_wait_queue | io_uring.h | ktime_t timeout, ktime_t napi_busy_poll_dt, bool na
 io_ring_ctx | io_uring_types.h | struct list_head napi_list, int napi_track_mode | io_napi_init() | napi.c | Context structure containing NAPI tracking state
 io_wait_queue | io_uring.h | ktime_t timeout, ktime_t napi_busy_poll_dt | io_napi_busy_loop() | napi.c | Wait queue structure for blocking operations
 io_kiocb | io_uring_types.h | struct io_ring_ctx *ctx, struct file *file | io_napi_add() | napi.c | I/O request structure
-io_shutdown | net.c | struct file *file, int how	io_shutdown_prep | net.c | Validates shutdown parameters
+io_shutdown | net.c | struct file *file, int how | io_shutdown_prep | net.c | Validates shutdown parameters
 | | | | io_shutdown | net.c | Executes socket shutdown operation
 io_accept | net.c | struct file *file, struct sockaddr __user *addr, int __user *addr_len, int flags, int iou_flags, u32 file_slot, unsigned long nofile | io_accept_prep | net.c | Prepares accept operation parameters
 | | | | io_accept | net.c | Handles socket accept operations
@@ -90,8 +90,8 @@ io_async_msghdr | io_uring.h | struct iovec fast_iov, struct io_vec vec, struct 
 | | | | io_netmsg_recycle | net.c | Recycles async message buffers
 | | | | io_sendmsg_setup | net.c | Sets up sendmsg operation
 | | | | io_recvmsg_copy_hdr | net.c | Copies message header
-proto_accept_arg | net.c | int err, int is_empty, int flags	io_accept | net.c | Tracks accept operation state
-buf_sel_arg | net.c | struct iovec *iovs, int nr_iovs, size_t max_len, int mode, size_t out_len	io_send_select_buffer | net.c | Manages buffer selection for I/O
+proto_accept_arg | net.c | int err, int is_empty, int flags | io_accept | net.c | Tracks accept operation state
+buf_sel_arg | net.c | struct iovec *iovs, int nr_iovs, size_t max_len, int mode, size_t out_len | io_send_select_buffer | net.c | Manages buffer selection for I/O
 | | | | io_recv_buf_select | net.c | Selects receive buffers
 io_recvmsg_multishot_hdr | net.c | struct io_uring_recvmsg_out msg, struct sockaddr_storage addr | io_recvmsg_multishot | net.c | Stores multishot receive header data
 io_async_msghdr | net.h | struct iou_vec vec, struct iovec fast_iov, struct msghdr msg, struct sockaddr_storage addr, size_t payloadlen/controllen, struct sockaddr __user *uaddr | io_sendmsg_prep() | net.h | Async message header for network operations
