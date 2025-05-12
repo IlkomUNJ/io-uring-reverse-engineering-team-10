@@ -67,7 +67,7 @@ cancel.c | linux/kernel.h | WARN_ON_ONCE | 1
 | | poll.h | io_poll_cancel | 1
 | | timeout.h | io_timeout_cancel | 1
 | | waitid.h | io_waitid_cancel | 1
-futex.h | io_futex_cancel | 1
+| | futex.h | io_futex_cancel | 1
 | | cancel.c | io_cancel_req_match | 3
 | |  | io_cancel_cb | 1
 | |  | io_async_cancel_one | 3
@@ -232,7 +232,6 @@ fs.c | linux/kernel.h | READ_ONCE | 19
 | |  | io_linkat_prep | 1
 | |  | io_linkat | 1
 | |  | io_link_cleanup	 | 1
-
 futex.c | linux/kernel.h | READ_ONCE | 4
 | |  | WARN_ON_ONCE | 1
 | |  | unlikely | 4
