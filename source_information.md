@@ -64,7 +64,7 @@ bBrfungsi sebagai tempat definisi dan pendaftaran operasi-oprasi (opcode) yang d
 Mengimplementasikan operasi pembukaan dan penutupan file untuk io_uring, meliputi io_openat/io_openat2 dengan parsing SQE, validasi flag (O_PATH, O_LARGEFILE, O_NONBLOCK, O_CLOEXEC), alokasi FD baru atau penggunaan slot fixed, serta pembersihan sumber daya; dan io_close yang menangani penutupan FD biasa dan fixed, termasuk sinkronisasi dengan file_lock, penanganan metode flush, dan instalasi FD tetap (io_install_fixed_fd) sesuai flag pengguna.
 
 ### poll.c
-Mengimplementasikan *async polling* di io_uring, mengubah operasi poll/epoll menjadi notifikasi via *Completion Queue (CQE)*. File ini menangani registrasi *fd*, monitoring event (seperti `EPOLLIN`), dan mengirim hasilnya secara asinkron, dengan optimasi seperti *batching* untuk kinerja tinggi.
+Mengimplementasikan async polling di io_uring, mengubah operasi poll/epoll menjadi notifikasi via Completion Queue (CQE). File ini menangani registrasi fd, monitoring event (seperti `EPOLLIN`), dan mengirim hasilnya secara asinkron, dengan optimasi seperti batching untuk kinerja tinggi.
 
 ### register.c
 menangani pendaftaran (registration) sumber daya seperti file descriptor, buffer, atau eventfd ke dalam konteks io_uring untuk digunakan berulang dalam operasi I/O asinkron, mengurangi overhead sistem call dengan menyimpan resource di kernel (misal via io_uring_register_files() atau io_uring_register_buffers()), serta mengoptimasi kinerja melalui caching dan mengurangi locking.

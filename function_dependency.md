@@ -991,7 +991,7 @@ poll.h | linux/io_uring_types.h | struct io_kiocb | 8
 | |	linux/io_uring_types.h | struct io_uring_sqe | 2
 | |	linux/io_uring_types.h | struct io_ring_ctx | 2
 | |	linux/io_uring_types.h | struct io_uring_task | 1
-| |	linux/io_uring_types.h | io_tw_token_t	1
+| |	linux/io_uring_types.h | io_tw_token_t | 1
 | |	poll.h | struct io_poll | 3
 | |	poll.h | struct async_poll | 1
 | |	poll.h | io_poll_multishot_retry | 1
@@ -1053,7 +1053,7 @@ rsrc.c | linux/kernel.h | memset | 1
 | | io_uring.h | io_alloc_cache_init, io_alloc_cache_free, io_cache_alloc, io_cache_free | 4
 | | openclose.h | io_close_fixed | 1
 | | memmap.h | io_post_aux_cqe | 1
-| | register.h | io_uring_register_get_file | | 1
+| | register.h | io_uring_register_get_file | 1
 | | rsrc.h | io_account_mem | 2
 | | rsrc.h | io_buffer_validate	| 3
 | | rsrc.h | io_release_ubuf | 1
@@ -1112,7 +1112,7 @@ rsrc.h | linux/io_uring_types.h | struct io_ring_ctx | 12
 | | rsrc.h | io_put_rsrc_node | 3
 | | rsrc.h | io_req_put_rsrc_nodes | 1
 | | rsrc.h | io_req_assign_buf_node | 1
-| | rsrc.c | io_unaccount_mem	2
+| | rsrc.c | io_unaccount_mem | 2
 
 
 Continue with the list untill all functions used in each source are listed.
