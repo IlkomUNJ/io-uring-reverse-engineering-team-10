@@ -928,7 +928,7 @@ opdef.h | io_uring.h | struct io_kiocb | 4
 | | opdef.h | io_cold_defs | 1	
 | | opdef.h | io_uring_op_supported | 1	
 | | opdef.h | io_uring_optable_init | 1	
-openclose.c | linux/kernel.h	WARN_ON_ONCE | 1	
+openclose.c | linux/kernel.h | WARN_ON_ONCE | 1	
 | | linux/errno.h | EINVAL, EBADF, EAGAIN, EPERM | 7	
 | | linux/fs.h | filp_close, receive_fd | 1
 | | linux/file.h | receive_fd | 1
@@ -960,7 +960,7 @@ openclose.h | io_uring.h | struct io_ring_ctx | 1
 | |	openclose.h | io_close_prep | 1
 | |	openclose.h | io_close | 1
 | |	openclose.h | io_install_fixed_fd_prep | 1
-| |	openclose.h	io_install_fixed_fd | 1
+| |	openclose.h | io_install_fixed_fd | 1
 poll.c | linux/kernel.h | WARN_ON_ONCE | 2	
 | | linux/errno.h | EINVAL, EBADF, EAGAIN, EPERM, ENOMEM, EALREADY, ENOENT | 12	
 | | linux/poll.h | vfs_poll | 3
@@ -1003,7 +1003,7 @@ poll.h | linux/io_uring_types.h | struct io_kiocb | 8
 | |	poll.h | io_arm_poll_handler | 1
 | |	poll.h | io_poll_remove_all | 1
 | |	poll.h | io_poll_task_func | 1
-refs.h | linux/atomic.h	atomic_*, atomic_read | 8
+refs.h | linux/atomic.h | atomic_*, atomic_read | 8
 | | refs.h | linux/io_uring_types.h	struct io_kiocb | 9
 | | refs.h | linux/io_uring_types.h	REQ_F_REFCOUNT | 6
 | | refs.h | req_ref_zero_or_close_to_overflow | 5
