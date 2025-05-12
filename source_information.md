@@ -73,29 +73,40 @@ menangani pendaftaran (registration) sumber daya seperti file descriptor, buffer
 Mengelola sumber daya (resources) seperti buffer dan file descriptor yang terdaftar, termasuk alokasi, pemantauan, dan pembersihan ketika tidak digunakan. File ini memastikan efisiensi dengan mekanisme caching dan reuse resource, serta menangani kasus seperti update atau pelepasan resource secara aman tanpa race condition.
 
 ### rw.c
+Menangani I/O baca/tulis, memastikan operasi I/O yang efisien, latensi rendah, dan dapat diskalakan di dalam kernel Linux. Desainnya memungkinkan aplikasi untuk mencapai kinerja tinggi, terutama dalam skenario yang membutuhkan throughput tinggi atau I/O overhead rendah.
 
 ### splice.c
+Memperluas fungsionalitas sambungan kernel ke kasus penggunaan asinkron dan berkinerja tinggi, menjadikannya komponen penting untuk aplikasi yang membutuhkan pergerakan data yang efisien di antara deskriptor file.
 
 ### sqpoll.c
+Memungkinkan polling antrian pengiriman yang efisien. Ini menghilangkan overhead dari transisi pengguna-kernel yang sering terjadi, menyediakan mekanisme yang kuat untuk operasi I / O dengan latensi rendah dan throughput tinggi.
 
 ### statx.c
+Menyediakan penanganan query metadata file secara asinkron, efisien, dan fleksibel. Dengan mengintegrasikan panggilan sistem statx dengan io_uring, statx.c menawarkan alat yang ampuh untuk aplikasi yang membutuhkan akses berkinerja tinggi ke atribut sistem berkas.
 
 ### sync.c
+Menyediakan dukungan asinkron, efisien, dan fleksibel untuk sinkronisasi file dan operasi terkait. Dengan memanfaatkan sifat non-blocking dari io_uring, io_uring memastikan konsistensi data sekaligus meminimalkan overhead kinerja, sehingga ideal untuk beban kerja I/O modern yang berkinerja tinggi.
 
 ### tctx.c
+Mengelola task-specific contexts, resources, and state. Ini memastikan penanganan operasi io_uring yang efisien, aman untuk thread, dan kuat dalam lingkungan multitasking dan multithreaded, menjadikannya landasan infrastruktur I/O asinkron kernel.
 
 ### timeout.c
+Menyediakan penanganan timeout asinkron yang kuat, efisien, dan fleksibel. Ini adalah komponen penting untuk aplikasi yang membutuhkan kontrol waktu yang tepat, eksekusi non-blocking, dan manajemen waktu habis dinamis dalam operasi I / O modern.
 
 ### truncate.c
+Bertanggung jawab untuk mengimplementasikan dukungan asinkron untuk operasi pemotongan file. Menangani pengiriman dan pelaksanaan operasi ini melalui IORING_OP_TRUNCATE dan IORING_OP_FTRUNCATE, yang memungkinkan aplikasi ruang pengguna untuk memotong file secara efisien baik berdasarkan jalur atau deskriptor file tanpa pemblokiran.
 
 ### uring_cmd.c
+Mengimplementasikan dukungan untuk operasi IORING_OP_URING_CMD, yang memungkinkan pengiriman perintah umum dan dapat diperluas ke subsistem kernel. Operasi tingkat lanjut atau khusus perangkat yang berada di luar I / O standar, seperti perintah passthrough untuk memblokir perangkat, sistem berkas, atau driver khusus.
 
 ### waitid.c
+Menyediakan dukungan asinkron untuk panggilan sistem waitid(2) melalui operasi IORING_OP_WAITID. Memungkinkan user-space applications menunggu perubahan status proses anak (keluar, berhenti, lanjutkan) tanpa pemblokiran, menggunakan antarmuka asinkron io_uring yang efisien.
 
 ### xattr.c
+Mengimplementasikan dukungan asinkron untuk operasi atribut yang diperluas (xattr) melalui IORING_OP_GETXATTR dan IORING_OP_SETXATTR. Mengizinkan user-space applications untuk mendapatkan dan mengatur atribut file yang diperluas tanpa pemblokiran, menggunakan model pengiriman asinkron io_uring.
 
 ### zcrx.c
-
+Mengimplementasikan dukungan zero-copy receive (ZC RX), khususnya untuk operasi jaringan. Bekerja dengan operasi IORING_OP_RECVMSG_ZC, memungkinkan aplikasi untuk menerima data dari soket tanpa menyalinnya antara kernel dan ruang pengguna, sehingga meningkatkan kinerja dan mengurangi penggunaan CPU.
 
 ## Headers
 Just declare the function specification. 
@@ -173,27 +184,40 @@ Menangani operasi registrasi dan unregistrasi komponen io_uring seperti eventfd 
 Mengelola sumber daya terdaftar (registered resources) dalam io_uring, termasuk file descriptors (IORING_RSRC_FILE) dan buffer (IORING_RSRC_BUFFER), dengan struktur seperti io_rsrc_node untuk tracking referensi dan io_mapped_ubuf untuk buffer mapping, menyediakan fungsi registrasi/unregistrasi (io_sqe_buffers_register, io_sqe_files_unregister), manajemen cache (io_rsrc_cache_init), serta utilitas impor/validasi buffer (io_import_reg_buf, io_buffer_validate) dengan dukungan thread-safe melalui reference counting dan optimasi memory (IO_VEC_CACHE_SOFT_CAP).
 
 ### rw.h
+Memusatkan logika dan deklarasi umum yang digunakan untuk menangani I/O baca dan tulis asinkron, termasuk jenis penyangga I/O, flag (mis. IOSQE_FIXED_FILE), fungsi sebaris untuk validasi permintaan, dan pengaturan vektor I/O.
 
 ### slist.h
+Mendefinisikan struktur data singly-linked list (SList) yang sederhana dan tidak terkunci dan operasi yang terkait. Ini terutama digunakan untuk antrian per-CPU atau per-pekerja yang efisien dalam jalur kinerja kritis dalam io_uring, seperti mengelola cache permintaan atau pekerjaan yang ditangguhkan
 
 ### splice.h
+Menyediakan deklarasi dan bantuan untuk menangani operasi sambungan asinkron melalui IORING_OP_SPLICE. Mendukung transfer data tanpa salinan antara dua deskriptor berkas, tanpa merutekan data melalui ruang pengguna.
 
 ### sqpoll.h
+Mendukung infrastruktur yang diperlukan untuk menjalankan io_uring dalam konfigurasi latensi rendah dan throughput tinggi dengan membebankan pemantauan antrean pengiriman ke utas polling di sisi kernel.
 
 ### statx.h
+Menyediakan deklarasi dan dukungan untuk operasi IORING_OP_STATX, yang memungkinkan aplikasi ruang pengguna untuk melakukan pemanggilan sistem statx(2) secara asinkron. Mengambil metadata terperinci tentang file, seperti stempel waktu, ukuran, dan atribut khusus sistem berkas.
 
 ### sync.h
+Menyediakan dukungan untuk operasi sinkronisasi asinkron, khususnya menangani operasi IORING_OP_FSYNC, IORING_OP_SYNC_FILE_RANGE, dan IORING_OP_SYNCFS. Membantu mendukung alur kerja I / O yang efisien dan berkinerja tinggi di mana jaminan daya tahan diperlukan tanpa menimbulkan biaya pemblokiran.
 
 ### tctx.h
+Mendefinisikan struktur dan fungsi pembantu yang terkait dengan konteks io_uring_task (sering disebut sebagai task context atau tctx). Konteks ini bersifat per-tugas (per-thread) dan melacak berbagai detail status dan manajemen sumber daya untuk thread yang menggunakan io_uring.
 
 ### timeout.h
+Menyediakan infrastruktur untuk menangani waktu habis asinkron dan operasi terkait pembatalan. Berinteraksi dengan high-resolution timers kernel dan mekanisme penjadwalan tugas untuk memberikan penanganan penundaan atau tenggat waktu yang tepat dan tidak memblokir, yang sering digunakan untuk mengikat latensi I / O atau mengimplementasikan batas waktu untuk operasi yang terkait.
 
 ### truncate.h
+Mendefinisikan internal interfaces dan fungsi pembantu untuk menangani operasi pemotongan file asinkron, khususnya untuk IORING_OP_TRUNCATE dan IORING_OP_FTRUNCATE. Menyediakan deklarasi fungsi dan konstanta atau struktur bersama yang digunakan oleh truncate.c untuk mengimplementasikan dukungan untuk memotong file baik berdasarkan path atau deskriptor file.
 
 ### uring_cmd.h
+Mendefinisikan infrastruktur untuk menangani operasi IORING_OP_URING_CMD, yang memungkinkan pengiriman perintah umum dan dapat diperluas ke berbagai subsistem kernel (mis., sistem berkas, perangkat blok, driver).
 
 ### waitid.h
+Menyediakan deklarasi internal dan fungsi-fungsi pembantu untuk mengimplementasikan operasi IORING_OP_WAITID. Operasi ini memungkinkan menunggu secara asinkron untuk perubahan status proses anak, yang mencerminkan perilaku syscall waitid(2) tetapi dengan cara yang tidak memblokir melalui io_uring.
 
 ### xattr.h
+Menyediakan deklarasi internal dan alat bantu untuk menangani operasi atribut yang diperluas (xattr) melalui IORING_OP_GETXATTR dan IORING_OP_SETXATTR. Mendefinisikan struktur, konstanta, dan prototipe fungsi yang digunakan oleh xattr.c untuk mengimplementasikan akses asinkron tanpa pemblokiran ke atribut yang diperluas file.
 
 ### zcrx.h
+Menyediakan deklarasi internal dan fungsi pembantu yang diperlukan untuk operasi zero-copy receive (ZC RX), khususnya dalam konteks jaringan. Header ini terkait dengan operasi IORING_OP_RECVMSG_ZC, yang memungkinkan aplikasi ruang pengguna untuk menerima data jaringan langsung ke buffer ruang pengguna tanpa perlu menyalin dari kernel ke ruang pengguna.
