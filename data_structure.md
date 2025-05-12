@@ -32,7 +32,7 @@ io_mapped_region | io_uring/memmap.h | struct page **pages, void *ptr, unsigned 
 | | | | io_create_region_mmap_safe | memmap.h | function parameter (mr)
 | | | | io_region_get_ptr | memmap.h | function parameter (mr)
 | | | | io_region_is_set | memmap.h | function parameter (mr)
-io_uring_region_desc | io_uring_types.h	__u64 user_addr, __u64 size, __u32 flags, __u32 mmap_offset, __u32 id | io_create_region | memmap.h | function parameter (reg)
+io_uring_region_desc | io_uring_types.h | __u64 user_addr, __u64 size, __u32 flags, __u32 mmap_offset, __u32 id | io_create_region | memmap.h | function parameter (reg)
 | | | | io_create_region_mmap_safe | memmap.h | function parameter (reg)
 io_ring_ctx | io_uring_types.h | struct io_mapped_region ring_region, struct io_user *user, etc. | io_free_region | memmap.h | function parameter (ctx)
 | | | | io_create_region | memmap.h | function parameter (ctx)
@@ -51,14 +51,14 @@ io_kiocb | io_uring_types.h | struct io_ring_ctx *ctx, struct io_tw_task_work io
 | | | | io_msg_remote_post | msg_ring.c | Configures req->opcode as IORING_OP_NOP for remote completion
 io_uring_sqe | uapi/linux/io_uring.h | off, len, addr, addr3, file_index, msg_ring_flags | io_uring_sync_msg_ring | msg_ring.h | Reads SQE fields for synchronous message ring operations
 | | | | io_msg_ring_prep | msg_ring.h | Validates and prepares SQE fields for async message ring
-io_kiocb | io_uring_types.h | ctx, flags, io_msg_ring_prep | msg_ring.h | Receives prepared request structure
+io_kiocb | io_uring_types.h | ctx, flags | io_msg_ring_prep | msg_ring.h | Receives prepared request structure
 | | | | io_msg_ring | msg_ring.h | Main parameter for message ring operations
 | | | | io_msg_ring_cleanup | msg_ring.h | Cleans up request resources
 io_napi_entry | napi.c | unsigned int napi_id, struct list_head list, unsigned long timeout, struct hlist_node node, struct rcu_head rcu | io_napi_hash_find | napi.c | Finds entry by napi_id in hash table
 | | | | __io_napi_add_id | napi.c | Creates and inserts new entry
 | | | | __io_napi_del_id | napi.c | Removes and frees entry
 | | | | __io_napi_remove_stale | napi.c | Cleans up stale entries based on timeout
-io_ring_ctx	io_uring_types.h | struct hlist_head *napi_ht, spinlock_t napi_lock, struct list_head napi_list, bool napi_prefer_busy_poll, ktime_t napi_busy_poll_dt, int napi_track_mode | io_napi_init | napi.c | Initializes napi tracking structures
+io_ring_ctx | io_uring_types.h | struct hlist_head *napi_ht, spinlock_t napi_lock, struct list_head napi_list, bool napi_prefer_busy_poll, ktime_t napi_busy_poll_dt, int napi_track_mode | io_napi_init | napi.c | Initializes napi tracking structures
 | | | | io_napi_free | napi.c | Cleans up all napi entries
 | | | | io_napi_register_napi | napi.c | Configures napi tracking mode and params
 | | | | __io_napi_busy_loop | napi.c | Executes busy polling loop
@@ -78,8 +78,7 @@ io_connect | net.c | struct file *file, struct sockaddr __user *addr, int addr_l
 | | | | io_connect | net.c | Handles socket connection
 io_bind | net.c | struct file *file, int addr_len | io_bind_prep | net.c | Validates bind parameters
 | | | | io_bind | net.c | Binds socket to address
-io_listen | net.c | struct file *file
-int backlog	io_listen_prep | net.c | Validates listen parameters
+io_listen | net.c | struct file *file, int backlog | io_listen_prep | net.c | Validates listen parameters
 | | | | io_listen | net.c | Starts listening on socket
 io_sr_msg | net.c | struct file *file, union {compat_msghdr/umsg/buf}, int len, unsigned done_io, unsigned msg_flags, u16 flags, u16, buf_group, bool retry, void __user *msg_control, struct io_kiocb *notif | io_sendmsg_prep | net.c | Prepares send/recv message parameters
 | | | | io_recvmsg_prep | net.c | Prepares receive message parameters
@@ -114,8 +113,6 @@ io_fixed_install | openclose.c | struct file *file, unsigned int, o_flags | io_i
 | | | | io_install_fixed_fd | openclose.c | Validates and processes fd installation flags
 io_poll	| poll.h | struct file *file, struct wait_queue_head *head, __poll_t events, int retries, struct wait_queue_entry wait | io_poll_add | poll.h | Tracks poll operation state
 async_poll | poll.h	| struct io_poll poll, struct io_poll, *double_poll | io_arm_poll_handler | poll.h | Handles async poll operations
-io_issue_def | opdef.c | .prep; .issue; .needs_file; .pollin/.pollout; .async_size; io_uring.c | Defines handlers and properties for all I/O operations
-io_cold_def	| opdef.c | .name; .cleanup; .fail | io_uring.c | Provides metadata and cleanup handlers
 io_poll_update | poll.c | struct file *file, u64 old_user_data, u64 new_user_data, __poll_t events, bool update_events, bool update_user_data | io_poll_remove | poll.c | Handles updates to existing poll requests (event flags/user_data)
 io_poll_table | poll.c | struct poll_table_struct pt, struct io_kiocb *req, int nr_entries, int error, bool owning, __poll_t result_mask | io_arm_poll_handler | poll.c | Tracks state during poll arm/wake operations
 | | | | __io_arm_poll_handler | poll.c | Tracks state during poll arm/wake operations
@@ -133,8 +130,7 @@ io_rsrc_node | rsrc.c | int type, refcount_t refs, u64 tag, union { struct file 
 | | | | io_free_rsrc_node | rsrc.c | Tracks individual registered resources
 io_mapped_ubuf | rsrc.c | unsigned long ubuf, size_t len, struct bio_vec bvec[], refcount_t refs | io_buffer_unmap | rsrc.c | Manages pinned user buffers
 | | | | io_sqe_buffer_register | rsrc.c | Manages pinned user buffers
-io_rsrc_data | rsrc.c | unsigned nr, struct io_rsrc_node **nodes
-io_rsrc_data_alloc | rsrc.c | Contains array of resource nodes
+io_rsrc_data | rsrc.c | unsigned nr, struct io_rsrc_node **nodes | io_rsrc_data_alloc | rsrc.c | Contains array of resource nodes
 | | | | io_rsrc_data_free | rsrc.c | Contains array of resource nodes
 io_uring_rsrc_update2 | rsrc.c | __u64 data, __u64 tags, __u32 nr, __u32 offset | __io_register_rsrc_update | io_uring.c | Update operation parameters
 io_uring_clone_buffers | rsrc.c | __s32 src_fd, __u32 src_off, __u32 dst_off | io_register_clone_buffers | io_uring.c | Buffer cloning parameters
