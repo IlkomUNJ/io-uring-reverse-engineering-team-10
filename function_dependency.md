@@ -683,21 +683,462 @@ kbuf.h | uapi/linux/io_uring.h | io_uring_sqe | 2
 | |  | io_kbuf_recycle | 1
 | |  | io_put_kbuf | 1
 | |  | io_put_kbufs | 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+memmap.c | linux/kernel.h | WARN_ON_ONCE | 4
+| | linux/errno.h | ENOMEM, EINVAL, EFAULT, E2BIG, EOVERFLOW | 10+
+| |	linux/mm.h | pin_user_pages_fast, unpin_user_pages, release_pages, vm_insert_pages | 5
+| | linux/mman.h | VM_DONTEXPAND, MAP_SHARED | 2
+| |	linux/slab.h | kvmalloc_array, kvfree | 3
+| |	linux/vmalloc.h | vmap, vunmap | 2
+| |	linux/io_uring.h | io_uring_region_desc, io_ring_ctx | 2
+| | asm/shmparam.h | SHM_COLOUR | 1
+| |	memmap.h | io_mapped_region, io_region_is_set, io_region_get_ptr | 5
+| |	kbuf.h | io_check_coalesce_buffer | 1
+| |	rsrc.h | __io_account_mem, __io_unaccount_mem | 2
+| | memmap.c | io_mem_alloc_compound | 1
+| | memmap.c | io_pin_pages | 2
+| | memmap.c | io_free_region | 2 
+| | memmap.c | io_region_init_ptr | 1 
+| | memmap.c | io_region_pin_pages | 1 
+| | memmap.c | io_region_allocate_pages | 1
+| | memmap.c | io_create_region | 2
+| | memmap.c | io_create_region_mmap_safe | 1
+| | memmap.c | io_mmap_get_region | 2
+| | memmap.c | io_region_validate_mmap | 2
+| | memmap.c | io_uring_validate_mmap_request | 3
+| | memmap.c | io_region_mmap | 1
+| | memmap.c | io_uring_mmap | 2
+| | memmap.c | io_uring_get_unmapped_area | 2
+memmap.h | linux/fs.h | struct file | 3
+| | memmap.h | io_pin_pages | 1 
+| | memmap.h | io_uring_get_unmapped_area | 1
+| | memmap.h | io_uring_mmap | 1
+| | memmap.h | io_free_region | 1
+| | memmap.h | io_create_region_mmap_safe | 1
+| | memmap.h | io_region_get_ptr | 1
+| | memmap.h | io_region_is_set | 1
+| msg_ring.c | linux/kernel.h | WARN_ON_ONCE, READ_ONCE | 4 
+| | linux/errno.h | EAGAIN, EINVAL, EBADFD, ENOMEM, EOVERFLOW, EOWNERDEAD | 10+
+| | linux/file.h | fput, get_file | 2
+| | tools/include/linux/slab.h | kmem_cache_alloc | 1
+| | mm/slub.c | kmem_cache_free | 2
+| | include/linux/gfp_types.h | __GFP_NOWARN | 1
+| | include/linux/gfp_types.h | __GFP_ZERO | 1
+| | io_uring.h | io_kiocb, io_ring_ctx | 10+ 
+| | rsrc.h | io_rsrc_node_lookup | 1
+| | filetable.h | io_slot_file | 1
+| | filetable.h | __io_fixed_fd_install | 1
+| | alloc_cache.h | io_alloc_cache_get | 1
+| | alloc_cache.h | io_alloc_cache_put | 1
+| | msg_ring.c | io_double_unlock_ctx | 2
+| | msg_ring.c | io_lock_external_ctx | 3
+| | msg_ring.c | io_msg_ring_cleanup | 1
+| | msg_ring.c | io_msg_need_remote | 2
+| | msg_ring.c | io_msg_tw_complete | 1
+| | msg_ring.c | io_msg_remote_post | 1
+| | msg_ring.c | io_msg_get_kiocb | 1
+| | msg_ring.c | io_msg_data_remote | 1
+| | msg_ring.c | __io_msg_ring_data | 2
+| | msg_ring.c | io_msg_ring_data | 1
+| | msg_ring.c | io_msg_grab_file | 1
+| | msg_ring.c | io_msg_install_complete | 2
+| | msg_ring.c | io_msg_tw_fd_complete | 1
+| | msg_ring.c | io_msg_fd_remote | 1
+| | msg_ring.c | io_msg_send_fd	| 1
+| | msg_ring.c | __io_msg_ring_prep | 2
+| | msg_ring.c | io_msg_ring_prep | 1
+| | msg_ring.c | io_msg_ring | 1
+| | msg_ring.c | io_uring_sync_msg_ring | 1
+| | msg_ring.h | io_uring_sync_msg_ring | 1
+| | msg_ring.h | io_msg_ring_prep | 1
+| | msg_ring.h | io_msg_ring | 1
+| | msg_ring.h | io_msg_ring_cleanup | 1
+| | include/uapi/linux/io_uring.h | io_uring_sqe  | 2
+| | include/linux/io_uring_types.h | io_kiocb | 3
+napi.c | io_uring.h | io_ring_ctx, io_wait_queue, io_should_wake, io_has_work | 10+ 
+| | linux/kernel.h | WARN_ON_ONCE, READ_ONCE, WRITE_ONCE | 5 
+| | include/linux/types.h | ktime_t | 8
+| | include/linux/jiffies.h | time_after | 3
+| | include/linux/rculist.h | INIT_LIST_HEAD | 2
+| | include/linux/rculist.h | list_add_tail_rcu | 1
+| | include/linux/rculist.h | list_del_rcu | 2
+| | include/linux/rculist.h | list_for_each_entry_rcu | 2
+| | include/linux/list.h | list_is_singular | 1
+| | include/linux/rculist.h | hlist_for_each_entry_rcu | | 1
+| | include/linux/rculist.h | hlist_add_tail_rcu | 1
+| | include/linux/hashtable.h | hash_del_rcu | 3
+| | tools/include/linux/slab.h | kmalloc | 1
+| | mm/slub.c | kfree | 1
+| | include/linux/rcupdate.h | kfree_rcu | 3
+| | linux/errno.h | EINVAL, EEXIST, ENOMEM, ENOENT	5 
+| | linux/spinlock.h | spin_lock | 1
+| | linux/spinlock.h | spin_unlock | 2
+| | linux/spinlock.h | spin_lock_init | 1
+| | linux/ktime.h | ns_to_ktime | 2
+| | linux/ktime.h | ktime_add | 1
+| | linux/ktime.h | ktime_after | 1
+| | linux/ktime.h | ktime_sub | 1
+| | include/linux/sched/signal.h, | signal_pending | 1
+| | include/net/busy_poll.h | napi_busy_loop_rcu | 1
+| | include/net/busy_poll.h | busy_loop_current_time | 2
+| | napi.c | io_napi_hash_find | 2
+| | napi.c | __io_napi_add_id | 2
+| | napi.c | __io_napi_del_id | 1
+| | napi.c | __io_napi_remove_stale | 2
+| | napi.c | io_napi_remove_stale | 2
+| | napi.c | io_napi_busy_loop_timeout | 2
+| | napi.c | io_napi_busy_loop_should_end | 2
+| | napi.c | static_tracking_do_busy_loop | 1
+| | napi.c | dynamic_tracking_do_busy_loop | 1
+| | napi.c | __io_napi_do_busy_loop | 2
+| | napi.c | io_napi_blocking_busy_loop | 1
+| | napi.c | io_napi_init | 1
+| | napi.c | io_napi_free | 1
+| | napi.c | io_napi_register_napi | 1
+| | napi.c | io_register_napi | 1
+| | napi.c | io_unregister_napi | 1
+| | napi.c | __io_napi_busy_loop | 1
+| | napi.c | io_napi_sqpoll_busy_poll | 1
+napi.h | linux/kernel.h | READ_ONCE | 2 
+| | include/net/sock.h, | sk_napi_id | 1
+| | linux/list.h | list_empty | 1
+| | linux/errno.h | EOPNOTSUPP | 2 
+| | napi.h | io_napi_init | 1
+| | napi.h | io_napi_free | 1
+| | napi.h | io_register_napi | 1
+| | napi.h | io_unregister_napi | 1
+| | napi.h | __io_napi_add_id | 1
+| | napi.h | __io_napi_busy_loop | 1
+| | napi.h | o_napi_sqpoll_busy_poll | 1
+| | napi.h | io_napi (inline) | 2
+| | napi.h | io_napi_busy_loop | 1
+| | napi.h | io_napi_add | 1
+net.c | linux/kernel.h | WARN_ON_ONCE, READ_ONCE | 5
+| | linux/errno.h | EINVAL, EAGAIN, ENOTSOCK, ENOMEM | 10+
+| | net/socket.c | sock_from_file | 8
+| | linux/file.h | fd_install | 2
+| | linux/file.h | get_unused_fd_flags | 2
+| | include/linux/slab.h | kfree | 3
+| | linux/net.h | sock_recvmsg | 2
+| | linux/net.h | sock_sendmsg | 2
+| | include/linux/socket.h | __sys_sendmsg_sock | 2
+| | include/linux/socket.h | __sys_recvmsg_sock | 1
+| | linux/compat.h | compat_ptr | 2
+| | net/compat.h | __get_compat_msghdr | 1
+| | linux/io_uring.h | io_kiocb_to_cmd, io_req_set_res | 10+
+io_uring.h	io_put_kbuf, io_import_ubuf | 5
+| | kbuf.h	io_buffer_select, io_kbuf_recycle | 3
+| | alloc_cache.h | io_alloc_cache_put | 1
+| | notif.h | io_notif_flush, io_alloc_notif | 3
+| | filetable.h | io_fixed_fd_install | 2
+| | net.c | io_net_retry | 2
+| | net.c | io_netmsg_iovec_free | 2
+| | net.c | io_msg_alloc_async | 3
+| | net.c | io_net_import_vec | 2
+| | net.c | io_msg_copy_hdr | 3
+| | net.c | io_sendmsg_setup | 1
+| | net.c | io_send_finish | 1
+| | net.c | io_recv_finish | 1
+| | net.c | io_recvmsg_multishot | 1
+| | net.c | io_send_zc_cleanup | 1
+net.h | linux/net.h | struct sockaddr, struct msghdr | 5
+| | linux/uio.h | struct iovec | 3
+| | linux/io_uring_types.h | struct io_kiocb | 18
+| | net.h | io_shutdown_prep | 1 
+| | net.h | io_shutdown | 1
+| | net.h | io_sendmsg_prep | 1
+| | net.h | io_sendmsg | 1 
+| | net.h | io_recvmsg_prep | 1
+| | net.h | io_recvmsg | 1
+| | net.h | io_accept_prep | 1
+| | net.h | io_accept | 1
+| | net.h | io_connect_prep | 1
+| | net.h | io_connect | 1
+| | net.h | io_send_zc_prep | 1
+| | net.h | io_send_zc | 1
+| | net.h | io_bind_prep | 1
+| | net.h | io_bind | 1
+| | net.h | io_listen_prep | 1
+| | net.h | io_listen | 1
+| | net.h | io_netmsg_cache_free | 1
+nop.c | linux/kernel.h | READ_ONCE | 2
+| | linux/errno.h | EINVAL, EBADF, EFAULT | 3
+| | io_uring.h | io_kiocb_to_cmd | 2
+| | io_uring.h | io_req_set_res | 1
+| | io_uring.h | req_set_fail | 1
+| | io_uring.h | io_file_get_fixed | 1
+| | io_uring.h  | io_file_get_normal | 1
+| | nop.c | io_nop_prep | 1
+| | nop.c | io_nop | 1
+nop.h | linux/io_uring_types.h | struct io_kiocb | 2
+| | linux/io_uring.h | struct io_uring_sqe | 1
+| | nop.h |	io_nop_prep | 1
+| | nop.h |	io_nop | 1
+notif.c | linux/kernel.h | WRITE_ONCE, container_of | 3
+| | linux/errno.h | EEXIST | 2
+| | linux/skbuff.h | skb_zcopy | 2
+| | linux/skbuff.h | skb_zcopy_init | 1
+| | linux/skbuff.h | net_zcopy_get | 2
+| | notif.h | io_notif_to_data | 2
+| | linux/io_uring_types.h | cmd_to_io_kiocb | 4
+| | io_uring.h | io_req_task_complete | 1
+| | io_uring.h | __io_req_task_work_add | 1
+| | io_uring.h | io_alloc_req | 1
+| | io_uring.h | io_get_task_refs | 1
+| | notif.c | io_notif_tw_complete | 1
+| | notif.c | io_tx_ubuf_complete | 1
+| | notif.c | io_link_skb | 1
+| | notif.c | io_alloc_notif | 1
+notif.h | include/linux/io_uring_types.h | io_kiocb_to_cmd | 1
+| | rsrc.h | __io_account_mem | 1
+| | notif.h	| io_notif_flush | 1
+| | notif.h	| io_notif_account_mem |1
+opdef.c | linux/kernel.h | WARN_ON_ONCE | 2
+| | linux/errno.h | ECANCELED | 1 
+| | linux/errno.h | EOPNOTSUPP | 1 
+| | io_uring.h | io_kiocb, io_uring_sqe | 2
+| | io_uring.h | io_uring_sqe | 1
+| | opdef.h | io_issue_def io_cold_def | 1
+| | opdef.h | io_cold_def | 1
+| | xattr.h | io_fsetxattr_prep,
+io_setxattr_prep, io_setxattr,
+io_fgetxattr_prep, io_fgetxattr,
+io_getxattr_prep, io_getxattr | 1
+| | nop.h | io_nop_prep, io_nop | 1
+| | statx.h | io_statx_prep, io_statx | 1
+| | splice.h | io_splice_prep, io_splice,
+io_tee_prep, io_tee | 1
+| | sync.h | io_fsync_prep, io_fsync,
+io_sfr_prep, io_sync_file_range | 1
+| | advise.h | io_fadvise_prep, io_fadvise,
+io_madvise_prep, io_madvise | 1
+| | openclose.h | io_openat_prep, io_openat,
+io_close_prep, io_close,
+io_openat2_prep, io_openat2 | 1
+| | uring_cmd.h | io_uring_cmd_prep, io_uring_cmd | 1
+| | epoll.h | io_epoll_ctl_prep, io_epoll_ctl,
+io_epoll_wait_prep, io_epoll_wait | 1
+| | net.h | io_sendmsg_prep, io_sendmsg,
+io_recvmsg_prep, io_recvmsg,
+io_accept_prep, io_accept,
+io_connect_prep, io_connect,
+io_shutdown_prep, io_shutdown,
+io_socket_prep, io_socket,
+io_bind_prep, io_bind,
+io_listen_prep, io_listen | 1
+| | msg_ring.h | io_msg_ring_prep, io_msg_ring | 1
+| | timeout.h | io_timeout_prep, io_timeout,
+io_timeout_remove_prep, io_timeout_remove,
+| | io_link_timeout_prep | 1
+| | poll.h | io_poll_add_prep, io_poll_add,
+io_poll_remove_prep, io_poll_remove | 1
+| | cancel.h | io_async_cancel_prep, io_async_cancel | 1
+| | rw.h | io_prep_readv, io_read,
+io_prep_writev, io_write,
+io_prep_read_fixed, io_read_fixed,
+io_prep_write_fixed, io_write_fixed,
+io_prep_read, io_prep_write,
+io_read_mshot_prep, io_read_mshot | 1
+| | waitid.h | io_waitid_prep, io_waitid | 1
+| | futex.h | io_futex_prep, io_futex_wait,
+io_futex_wake, io_futexv_prep,
+io_futexv_wait | 1
+| | truncate.h | io_ftruncate_prep, io_ftruncate | 1
+| | zcrx.h | io_recvzc_prep, io_recvzc | 1
+| | opdef.c | io_no_issue | 1	
+| | opdef.c | opdef.c	io_eopnotsupp_prep | 9	
+| | opdef.c | io_uring_get_opcode | 1	
+| | opdef.c | io_uring_op_supported | 1	
+| | opdef.c | io_uring_optable_init | 1
+opdef.h | io_uring.h | struct io_kiocb | 4		
+| | opdef.h | io_issue_defs | 1	
+| | opdef.h | io_cold_defs | 1	
+| | opdef.h | io_uring_op_supported | 1	
+| | opdef.h | io_uring_optable_init | 1	
+openclose.c | linux/kernel.h	WARN_ON_ONCE | 1	
+| | linux/errno.h | EINVAL, EBADF, EAGAIN, EPERM | 7	
+| | linux/fs.h | filp_close, receive_fd | 1
+| | linux/file.h | receive_fd | 1
+| | linux/fdtable.h | files_struct, files_lookup_fd_locked, file_close_fd_locked | 1
+| | fs/internal.h | build_open_flags, do_filp_open | 1
+| | io_uring.h | io_kiocb_to_cmd | 10	
+| | io_uring.h | io_req_set_res, req_set_fail | 6	
+| | filetable.h | io_fixed_fd_install, io_fixed_fd_remove | 1
+| | openclose.c	| io_openat_force_async | 3	
+| | openclose.c | __io_openat_prep | 2	
+| | openclose.c | io_openat_prep | 1	
+| | openclose.c | io_openat2_prep | 1	
+| | openclose.c | io_openat2 | 2	
+| | openclose.c | io_openat | 1	
+| | openclose.c | io_open_cleanup | 1	
+| | openclose.c | __io_close_fixed | 2	
+| | openclose.c | io_close_fixed | 1	
+| | openclose.c | io_close_prep | 1	
+| | openclose.c | io_close | 1	
+| | openclose.c | io_install_fixed_fd_prep | 1	
+| | openclose.c | io_install_fixed_fd | 1
+openclose.h | io_uring.h | struct io_ring_ctx | 1
+| |	openclose.h | __io_close_fixed | 1
+| |	openclose.h | io_openat_prep | 1
+| |	openclose.h | io_openat | 1
+| |	openclose.h | io_open_cleanup | 1
+| |	openclose.h | io_openat2_prep | 1
+| |	openclose.h | io_openat2 | 1
+| |	openclose.h | io_close_prep | 1
+| |	openclose.h | io_close | 1
+| |	openclose.h | io_install_fixed_fd_prep | 1
+| |	openclose.h	io_install_fixed_fd | 1
+poll.c | linux/kernel.h | WARN_ON_ONCE | 2	
+| | linux/errno.h | EINVAL, EBADF, EAGAIN, EPERM, ENOMEM, EALREADY, ENOENT | 12	
+| | linux/poll.h | vfs_poll | 3
+| | linux/slab.h | kmalloc, kfree | 2
+| | linux/slab.h | GFP_ATOMIC | 2	
+| | linux/poll.h | poll_table_struct, EPOLL*, __poll_t | 25
+| | linux/eventpoll.h | EPOLL* | 25	
+| | linux/types.h | __poll_t | 4
+| | linux/hash.h | hlist_node, hash_long | 3
+| | trace/events/io_uring.h | trace_io_uring_* | 2	
+| | uapi/linux/io_uring.h | IORING_OP_, IORING__FLAGS | 15
+| | io_uring.h | io_kiocb_to_cmd, io_req_* | 32
+| | alloc_cache.h | io_cache_alloc | 1
+| | napi.h | io_napi_add | 2
+| | opdef.h | io_issue_defs | 1
+| | kbuf.h | io_kbuf_recycle | 3
+| | cancel.h | io_cancel_* | 5
+| | poll.c | io_poll_wake | 4
+| | poll.c | io_poll_get_ownership	6
+| | poll.c | __io_poll_execute	5
+| | poll.c | io_poll_remove_entries | 4
+| | poll.c | io_poll_cancel_req | 3
+| | poll.c | io_poll_task_func | 1
+| | poll.c | io_arm_poll_handler | 1
+| | poll.c | io_poll_add | 1
+| | poll.c | io_poll_remove | 1
+poll.h | linux/io_uring_types.h | struct io_kiocb | 8
+| |	linux/io_uring_types.h | struct io_uring_sqe | 2
+| |	linux/io_uring_types.h | struct io_ring_ctx | 2
+| |	linux/io_uring_types.h | struct io_uring_task | 1
+| |	linux/io_uring_types.h | io_tw_token_t	1
+| |	poll.h | struct io_poll | 3
+| |	poll.h | struct async_poll | 1
+| |	poll.h | io_poll_multishot_retry | 1
+| |	poll.h | io_poll_add_prep | 1
+| |	poll.h | io_poll_add | 1
+| |	poll.h | io_poll_remove_prep | 1
+| |	poll.h | io_poll_remove | 1
+| |	poll.h | io_poll_cancel | 1
+| |	poll.h | io_arm_poll_handler | 1
+| |	poll.h | io_poll_remove_all | 1
+| |	poll.h | io_poll_task_func | 1
+refs.h | linux/atomic.h	atomic_*, atomic_read | 8
+| | refs.h | linux/io_uring_types.h	struct io_kiocb | 9
+| | refs.h | linux/io_uring_types.h	REQ_F_REFCOUNT | 6
+| | refs.h | req_ref_zero_or_close_to_overflow | 5
+| | refs.h | req_ref_inc_not_zero | 1
+| | refs.h | req_ref_put_and_test_atomic | 1
+| | refs.h | req_ref_put_and_test | 1
+| | refs.h | req_ref_get | 1
+| | refs.h | req_ref_put | 1
+| | refs.h | __io_req_set_refcount | 1
+| | refs.h | io_req_set_refcount | 1
+register.c | linux/kernel.h | WARN_ON_ONCE | 2
+| | linux/slab.h | kzalloc, kfree, kmalloc | 5
+| | linux/uaccess.h | copy_from_user, copy_to_user	 | 2
+| | linux/compat.h | compat_get_bitmap | 1
+| | linux/fs.h | fget, fput, get_file | 8
+| | linux/refcount.h | refcount_inc | 1
+| | linux/nospec.h | array_index_nospec | 3
+| | linux/io_uring.h | io_uring_fill_params | 1
+| | io_uring.h | io_activate_pollwq | 1
+| | rsrc.h | io_sqe_buffers_register | 3
+| | sqpoll.h | io_sqpoll_wq_cpu_affinity | 1
+| | eventfd.h | io_eventfd_register | 2
+| | memmap.h | io_create_region_mmap_safe | 3
+| | msg_ring.h | io_uring_sync_msg_ring | 1
+| | opdef.h | io_uring_op_supported | 1
+| | register.c | io_probe | 1
+| | register.c | io_register_personality | 2
+| | register.c | io_register_restrictions | 2
+| | register.c | io_register_resize_rings | 1
+register.h | linux/fs.h	| struct file | 1
+| |	linux/io_uring_types.h	| struct io_ring_ctx | 2
+| | register.h | io_eventfd_unregister | 1
+| | register.h | io_unregister_personality | 1
+| | register.h | io_uring_register_get_file | 1
+rsrc.c | linux/kernel.h | memset | 1
+| | linux/fs.h | fget, fput | 4
+| | linux/slab.h | kvmalloc, kvfree, kvmalloc_array | 5
+| | linux/mm.h | unpin_user_page, unpin_user_pages, PageCompound, compound_head, page_size, folio_nr_pages, folio_shift, folio_size, folio_page_idx | 9
+| | linux/io_uring.h | io_is_uring_fops | 1
+| | linux/uio.h | iovec_from_user | 2
+| | linux/bio.h | bvec_set_page, bio_vec, blk_rq_nr_phys_segments, blk_rq_bytes, rq_data_dir, rq_for_each_bvec | 6
+| | linux/overflow.h | check_add_overflow |3
+| | linux/errno.h | ENOMEM, EFAULT, EINVAL, EBADF, ENXIO, EOVERFLOW, EMFILE | 7
+| | linux/compat.h | compat_iovec | 1
+| | linux/limits.h | rlimit | 1
+| | uapi/linux/io_uring.h | IORING_REGISTER_FILES_SKIP, IORING_RSRC_FILE, IORING_RSRC_BUFFER | 3
+| | io_uring.h | io_alloc_cache_init, io_alloc_cache_free, io_cache_alloc, io_cache_free | 4
+| | openclose.h | io_close_fixed | 1
+| | memmap.h | io_post_aux_cqe | 1
+| | register.h | io_uring_register_get_file | | 1
+| | rsrc.h | io_account_mem | 2
+| | rsrc.h | io_buffer_validate	| 3
+| | rsrc.h | io_release_ubuf | 1
+| | rsrc.h | io_alloc_imu	| 3
+| | rsrc.h | io_free_imu | 2
+| | rsrc.h | io_buffer_unmap | 2
+| | rsrc.h | io_rsrc_node_alloc | 5
+| | rsrc.h | io_rsrc_cache_init | 1
+| | rsrc.h | io_rsrc_cache_free | 1
+| | rsrc.h | io_rsrc_data_free | 2
+| | rsrc.h | io_rsrc_data_alloc | 2
+| | rsrc.h | __io_sqe_files_update | 2
+| | rsrc.h | __io_sqe_buffers_update | 2
+| | rsrc.h | __io_register_rsrc_update | 2
+| | rsrc.h | io_sqe_buffer_register | 2
+| | rsrc.h | io_free_rsrc_node | 1
+| | rsrc.h | io_sqe_files_unregister | 1
+| | rsrc.h | io_sqe_files_register | 1
+| | rsrc.h | io_sqe_buffers_unregister | 1
+| | rsrc.h | io_sqe_buffers_register | 1
+| | rsrc.h | headpage_already_acct | 1
+| | rsrc.h | io_buffer_account_pin | 1
+| | rsrc.h | io_coalesce_buffer | 1
+| | rsrc.h | io_check_coalesce_buffer | 1
+| | rsrc.h | io_import_fixed | 2
+| | rsrc.h | io_find_buf_node | 2
+| | rsrc.h | io_import_reg_buf | 1
+| | rsrc.h | lock_two_rings | 1
+| | rsrc.h | io_clone_buffers | 1
+| | rsrc.h | io_register_clone_buffers | 1
+| | rsrc.h | io_vec_free | 1
+| | rsrc.h | io_vec_realloc | 2
+| | rsrc.h | io_vec_fill_bvec | 1
+| | rsrc.h | io_estimate_bvec_size | 1
+| | rsrc.h | io_vec_fill_kern_bvec | 1
+| | rsrc.h | iov_kern_bvec_size | 1
+| | rsrc.h | io_kern_bvec_size | 1
+| | rsrc.h | io_import_reg_vec | 1
+| | rsrc.h | io_prep_reg_iovec | 1
+rsrc.h | linux/io_uring_types.h | struct io_ring_ctx | 12
+| | linux/io_uring_types.h | struct io_kiocb | 6
+| | linux/lockdep.h | lockdep_assert_held | 1
+| | linux/uaccess.h | array_index_nospec | 1
+| | linux/refcount.h | refcount_t (via struct io_mapped_ubuf) | 1	
+| | rsrc.h | io_rsrc_cache_init | 1	
+| | rsrc.h | io_rsrc_cache_free | 1	
+| | rsrc.h | io_rsrc_node_alloc | 1	
+| | rsrc.h | io_free_rsrc_node | 4	
+| | rsrc.h | io_sqe_buffers_register | 1	
+| | rsrc.h | io_sqe_buffers_unregister | 1
+| | rsrc.h | io_sqe_files_register | 1
+| | rsrc.h | io_sqe_files_unregister | 1
+| | rsrc.h | io_import_reg_buf | 1
+| | rsrc.h | io_import_reg_vec | 1
+| | rsrc.h | io_files_update | 1
+| | rsrc.h | io_put_rsrc_node | 3
+| | rsrc.h | io_req_put_rsrc_nodes | 1
+| | rsrc.h | io_req_assign_buf_node | 1
+| | rsrc.c | io_unaccount_mem	2
 
 
 Continue with the list untill all functions used in each source are listed.
