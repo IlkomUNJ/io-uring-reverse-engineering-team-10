@@ -1,7 +1,7 @@
 # Task 2: Dependency Injection
 For this assigment, we want a little clarity regarding what kind of functions being imported and used on each source. Do note, we record all function actually being used by the source including function defined by itself if actually used inside the file. For the sake of completion, it's better if you straight disregard include list on the source. Instead, trace each function being used to the declared source.
 
-Source | Libary | Function utilized | Time Used
+Source | Library | Function utilized | Time Used
 -------|--------|--------------| ------------------
 alloc_cache.h | /include/linux/kasan.h | kasan_mempool_unpoison_object | 1
 | | arch/x86/include/asm/string_64.h| memset | 1
@@ -825,8 +825,8 @@ net.c | linux/kernel.h | WARN_ON_ONCE, READ_ONCE | 5
 | | linux/compat.h | compat_ptr | 2
 | | net/compat.h | __get_compat_msghdr | 1
 | | linux/io_uring.h | io_kiocb_to_cmd, io_req_set_res | 10+
-io_uring.h	io_put_kbuf, io_import_ubuf | 5
-| | kbuf.h	io_buffer_select, io_kbuf_recycle | 3
+| | io_uring.h | io_put_kbuf, io_import_ubuf | 5
+| | kbuf.h | io_buffer_select, io_kbuf_recycle | 3
 | | alloc_cache.h | io_alloc_cache_put | 1
 | | notif.h | io_notif_flush, io_alloc_notif | 3
 | | filetable.h | io_fixed_fd_install | 2
@@ -899,49 +899,23 @@ opdef.c | linux/kernel.h | WARN_ON_ONCE | 2
 | | io_uring.h | io_uring_sqe | 1
 | | opdef.h | io_issue_def io_cold_def | 1
 | | opdef.h | io_cold_def | 1
-| | xattr.h | io_fsetxattr_prep,
-io_setxattr_prep, io_setxattr,
-io_fgetxattr_prep, io_fgetxattr,
-io_getxattr_prep, io_getxattr | 1
+| | xattr.h | io_fsetxattr_prep, io_setxattr_prep, io_setxattr, io_fgetxattr_prep, io_fgetxattr, io_getxattr_prep, io_getxattr | 1
 | | nop.h | io_nop_prep, io_nop | 1
 | | statx.h | io_statx_prep, io_statx | 1
-| | splice.h | io_splice_prep, io_splice,
-io_tee_prep, io_tee | 1
-| | sync.h | io_fsync_prep, io_fsync,
-io_sfr_prep, io_sync_file_range | 1
-| | advise.h | io_fadvise_prep, io_fadvise,
-io_madvise_prep, io_madvise | 1
-| | openclose.h | io_openat_prep, io_openat,
-io_close_prep, io_close,
-io_openat2_prep, io_openat2 | 1
+| | splice.h | io_splice_prep, io_splice, io_tee_prep, io_tee | 1
+| | sync.h | io_fsync_prep, io_fsync, io_sfr_prep, io_sync_file_range | 1
+| | advise.h | io_fadvise_prep, io_fadvise, io_madvise_prep, io_madvise | 1
+| | openclose.h | io_openat_prep, io_openat, io_close_prep, io_close, io_openat2_prep, io_openat2 | 1
 | | uring_cmd.h | io_uring_cmd_prep, io_uring_cmd | 1
-| | epoll.h | io_epoll_ctl_prep, io_epoll_ctl,
-io_epoll_wait_prep, io_epoll_wait | 1
-| | net.h | io_sendmsg_prep, io_sendmsg,
-io_recvmsg_prep, io_recvmsg,
-io_accept_prep, io_accept,
-io_connect_prep, io_connect,
-io_shutdown_prep, io_shutdown,
-io_socket_prep, io_socket,
-io_bind_prep, io_bind,
-io_listen_prep, io_listen | 1
+| | epoll.h | io_epoll_ctl_prep, io_epoll_ctl, io_epoll_wait_prep, io_epoll_wait | 1
+| | net.h | io_sendmsg_prep, io_sendmsg, io_recvmsg_prep, io_recvmsg, io_accept_prep, io_accept, io_connect_prep, io_connect, io_shutdown_prep, io_shutdown, io_socket_prep, io_socket, io_bind_prep, io_bind, io_listen_prep, io_listen | 1
 | | msg_ring.h | io_msg_ring_prep, io_msg_ring | 1
-| | timeout.h | io_timeout_prep, io_timeout,
-io_timeout_remove_prep, io_timeout_remove,
-| | io_link_timeout_prep | 1
-| | poll.h | io_poll_add_prep, io_poll_add,
-io_poll_remove_prep, io_poll_remove | 1
+| | timeout.h | io_timeout_prep, io_timeout, io_timeout_remove_prep, io_timeout_remove,io_link_timeout_prep | 1
+| | poll.h | io_poll_add_prep, io_poll_add, io_poll_remove_prep, io_poll_remove | 1
 | | cancel.h | io_async_cancel_prep, io_async_cancel | 1
-| | rw.h | io_prep_readv, io_read,
-io_prep_writev, io_write,
-io_prep_read_fixed, io_read_fixed,
-io_prep_write_fixed, io_write_fixed,
-io_prep_read, io_prep_write,
-io_read_mshot_prep, io_read_mshot | 1
+| | rw.h | io_prep_readv, io_read, io_prep_writev, io_write, io_prep_read_fixed, io_read_fixed, io_prep_write_fixed, io_write_fixed, io_prep_read, io_prep_write, io_read_mshot_prep, io_read_mshot | 1
 | | waitid.h | io_waitid_prep, io_waitid | 1
-| | futex.h | io_futex_prep, io_futex_wait,
-io_futex_wake, io_futexv_prep,
-io_futexv_wait | 1
+| | futex.h | io_futex_prep, io_futex_wait, io_futex_wake, io_futexv_prep, io_futexv_wait | 1
 | | truncate.h | io_ftruncate_prep, io_ftruncate | 1
 | | zcrx.h | io_recvzc_prep, io_recvzc | 1
 | | opdef.c | io_no_issue | 1	
