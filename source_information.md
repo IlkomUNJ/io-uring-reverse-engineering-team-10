@@ -133,7 +133,7 @@ File ini adalah header internal utama dalam subsistem io_uring di kernel Linux y
 ### io-wq.h
 File ini berisi deklarasi fungsi dan struktur untuk mengelola I/O workqueue (io_wq) dalam sistem io_uring Linux. Fungsi-fungsinya mencakup pembuatan (io_wq_create), penambahan pekerjaan (io_wq_enqueue), penandaan pekerjaan hashed (io_wq_hash_work), pembatalan pekerjaan (io_wq_cancel_cb), pengaturan afinitas CPU (io_wq_cpu_affinity), dan penghentian workqueue (io_wq_put_and_exit). Selain itu, ada fungsi untuk mendeteksi status worker, seperti saat aktif atau tidur. Semua ini memungkinkan eksekusi pekerjaan I/O blocking secara efisien di background.
 
-### kbuf.h
+### kbuf.h 
 Fungsi-fungsi dalam file ini berfokus pada pengelolaan buffer dalam konteks io_uring di kernel Linux. Fungsi utama mencakup pemilihan buffer (io_buffer_select), penyediaan dan penghapusan buffer (io_provide_buffers, io_remove_buffers), serta pendaftaran buffer ring (io_register_pbuf_ring). Fungsi-fungsi lain menangani daur ulang buffer, baik yang menggunakan metode legacy (io_kbuf_recycle_legacy) maupun buffer ring (io_kbuf_recycle_ring). Fungsi io_put_kbufs digunakan untuk menambahkan buffer ke dalam I/O, sedangkan io_kbuf_recycle menangani daur ulang buffer berdasarkan kondisi tertentu. Semua fungsi ini bekerja untuk memastikan manajemen buffer yang efisien dalam operasi I/O asinkron.
 
 ### memmap.h
