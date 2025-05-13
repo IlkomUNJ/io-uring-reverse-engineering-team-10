@@ -378,7 +378,6 @@ io_rsrc_node | rsrc.h | type (file/buffer), refs (refcount), tag (user tag), uni
 io_mapped_ubuf | rsrc.h | ubuf (user addr), len (buffer size), nr_bvecs, folio_shift, refs, acct_pages, is_kbuf, dir (IO_IMU_*), bvec[] | io_sqe_buffer_register | rsrc.c | Manages pinned user/kernel buffers
 | | | | io_buffer_unmap | rsrc.c | Manages pinned user/kernel buffers
 io_imu_folio_data | rsrc.h | nr_pages_head, nr_pages_mid, folio_shift, nr_folios | io_check_coalesce_buffer | rsrc.c | Tracks compound page info for buffer coalescing
-<!-- rw.c -->
 io_rw       | io_uring/rw.c | struct kiocb, u64 addr, u32 len, rwf_t flags  | io_iov_compact_buffer_select_prep | io_uring/rw.c | function parameter
 | | | | io_iov_buffer_select_prep | io_uring/rw.c | local variable, function parameter
 | | | | __io_import_iovec | io_uring/rw.c | local variable, function parameter
@@ -404,7 +403,6 @@ io_rw       | io_uring/rw.c | struct kiocb, u64 addr, u32 len, rwf_t flags  | io
 | | | | io_read_mshot | io_uring/rw.c | local variable, function parameter
 | | | | io_write | io_uring/rw.c | local variable, function parameter
 | | | | io_uring_classic_poll | io_uring/rw.c | local variable, function parameter
-<!-- rw.h -->
 io_meta_state   | io_uring/rw.h | u32 seed, struct iov_iter_state iter_meta | struct io_async_rw | io_uring/rw.h | local variable
 io_async_rw   | io_uring/rw.h | size_t bytes_done, struct iovec *free_iovec, struct iov_iter iter, struct iov_iter_state iter_state, struct iovec fast_iov, int free_iov_nr, struct wait_page_queue wpq, struct uio_meta meta, struct io_meta_state meta_state | __cold | io_uring/io_uring.c | function parameter
 | | | | struct io_issue_def | io_uring/opdef.c | function parameter
@@ -424,14 +422,12 @@ io_async_rw   | io_uring/rw.h | size_t bytes_done, struct iovec *free_iovec, str
 | | | | __io_read | io_uring/rw.c | local variable *io
 | | | | io_write | io_uring/rw.c | local variable *io
 | | | | io_rw_cache_free | io_uring/rw.c | local variable *rw, function paramete *rw
-<!-- splice.c -->
 io_splice   | io_uring/splice.c | struct file *file_out, loff_t off_out, loff_t off_in, u64 len, int splice_fd_in, unsigned int flags, struct io_rsrc_node *rsrc_nod | __io_splice | io_uring/splice.c | local variable *sp, function parameter
 | | | | io_splice_cleanup | io_uring/splice.c | local variable *sp, function parameter
 | | | | struct file *io_splice_get_file | io_uring/splice.c | local variable *sp, function parameter
 | | | | io_tee | io_uring/splice.c | local variable *sp, function parameter
 | | | | io_splice_prep | io_uring/splice.c | local variable *sp, function parameter
 | | | | io_splice | io_uring/splice.c | local variable *sp, function parameter
-<!-- sqpoll.h -->
 io_sq_data     | io_uring/sqpoll.h | refcount_t refs, atomic_t park_pending, struct mutex lock, struct list-head xtc_list, struct task_struct *thread, struct wait_queue_head wait, unsigned sq_thread_idle, int sq_cpu, pid_t task_pid, pid_t task_tgid,  u64 work_time, unsigned long state, struct completion exited | io_uring_show_fdinfo | io_uring/fdinfo.c | local variable *sp
 | | | | io_ring_exit_work | io_uring/io_uring.c | local variable *sqd
 | | | | io_uring_cancel_generic | io_uring/io_uring.c | function parameter *sqd
@@ -454,11 +450,9 @@ io_sq_data     | io_uring/sqpoll.h | refcount_t refs, atomic_t park_pending, str
 | | | | io_sq_thread_park | io_uring/sqpoll.c | function parameter *sqd
 | | | | io_sq_thread_unpark | io_uring/sqpoll.c | function parameter *sqd
 | | | | io_put_sq_data | io_uring/sqpoll.c | function parameter *sqd
-<!-- statx.c -->
 io_statx     | io_uring/statx.c | struct file *file, int dfd, unsigned int mask, unsigned int flags, struct filename *filename, struct statx __user *buffer | io_statx_prep | io_uring/statx.c | local variable *sx, function parameter
 | | | | io_statx | io_uring/statx.c | local variable *sx, function parameter
 | | | | io_statx_cleanup | io_uring/statx.c | local variable *sx, function parameter
-<!-- sync.c -->
 io_sync    | io_uring/sync.c | struct file *file, loff_t len, loff_t len, int flags, int mode | io_uring_show_fdinfo | io_uring/fdinfo.c | local variable *sp
 | | | | io_sfr_prep | io_uring/sync.c | local variable *sync, function parameter
 | | | | io_sync_file_range | io_uring/sync.c | local variable *sync, function parameter
@@ -466,7 +460,6 @@ io_sync    | io_uring/sync.c | struct file *file, loff_t len, loff_t len, int fl
 | | | | io_fsync | io_uring/sync.c | local variable *sync, function parameter
 | | | | io_fallocate_prep | io_uring/sync.c | local variable *sync, function parameter
 | | | | io_fallocate | io_uring/sync.c | local variable *sync, function parameter
-<!-- tctx.h -->
 io_tctx_node    | io_uring/tctx.h | struct list_head ctx_node, struct task_struct *task, struct io_ring_ctx *ctx | __io_async_cancel | io_uring/cancel.c | local variable *node
 | | | | io_ring_exit_work | io_uring/io_uring.c | local variable *node, function parameter
 | | | | io_uring_try_cancel | io_uring/io_uring.c | local variable *node
@@ -476,7 +469,6 @@ io_tctx_node    | io_uring/tctx.h | struct list_head ctx_node, struct task_struc
 | | | | __io_uring_add_tctx_node | io_uring/tctx.c | local variable *node
 | | | | __io_uring_del_tctx_node | io_uring/tctx.c | local variable *node
 | | | | __io_uring_clean_tctx | io_uring/tctx.c | local variable *node
-<!-- timeout.c -->
 io_timeout    | io_uring/timeout.c | struct file *file, u32 off, u32 target_seq, u32 repeats, struct list_head list, struct io_kiocb *head, struct io_kiocb *prev | io_is_timeout_noseq | io_uring/timeout.c | local variable *timeout, function parameter
 | | | | io_timeout_finish | io_uring/timeout.c | function parameter *timeout
 | | | | io_timeout_complete | io_uring/timeout.c | local variable *timeout, function parameter
@@ -496,7 +488,6 @@ io_timeout    | io_uring/timeout.c | struct file *file, u32 off, u32 target_seq,
 | | | | iio_kill_timeouts | io_uring/timeout.c | local variable *timeout
 io_timeout_rem    | io_uring/timeout.c | struct file *file, u64 addr, struct timespec64 ts, u32 flags, bool ltimeout | io_timeout_remove_prep | io_uring/timeout.c | local variable *tr, function parameter
 | | | | io_timeout_remove | io_uring/timeout.c | local variable *tr, function parameter
-<!-- timeout.h -->
 io_timeout_data    | io_uring/timeout.h | struct io_kiocb *req, struct hrtimer timer, struct timespec64 ts, enum hrtimer_mode mode, u32 flags | io_issue_def | io_uring/opdef.c | function parameter
 | | | | io_is_timeout_noseq | io_uring/timeout.c | local variable *data
 | | | | io_timeout_finish | io_uring/timeout.c | function parameter *data
@@ -512,10 +503,8 @@ io_timeout_data    | io_uring/timeout.h | struct io_kiocb *req, struct hrtimer t
 | | | | __io_timeout_prep | io_uring/timeout.c | local variable *data
 | | | | io_timeout | io_uring/timeout.c | local variable *data
 | | | |io_queue_linked_timeout | io_uring/timeout.c | local variable *data
-<!-- truncate.c -->
 io_ftrunc    | io_uring/truncate.c | struct file *file, loff_t len | io_ftruncate_prep | io_uring/truncate.c | local variable *ft, function parameter
 | | | | io_ftruncate | io_uring/truncate.c | local variable *ft, function parameter
-<!-- waitid.c -->
 io_waitid     | io_uring/waitid.c | struct file *file, int which, pid_t upid, int options, atomic_t refs, struct wait_queue_head *head, struct signinfo __user *infop, struct waitid_info info | io_waitid_compat_copy_si | io_uring/waitid.c | local variable *iw
 | | | | io_waitid_copy_si | io_uring/waitid.c | local variable *iw, function parameter
 | | | | io_waitid_complete | io_uring/waitid.c | local variable *iw, function parameter
@@ -525,7 +514,6 @@ io_waitid     | io_uring/waitid.c | struct file *file, int which, pid_t upid, in
 | | | | io_waitid_wait | io_uring/waitid.c | local variable *iw, function parameter
 | | | | io_waitid_prep | io_uring/waitid.c | local variable *iw, function parameter
 | | | |io_waitid | io_uring/waitid.c | local variable *iw, function parameter
-<!-- waitid.h -->
 io_waitid_async     | io_uring/waitid.h | struct io_kiocb *req, struct wait_opts wo | io_waitid_free | io_uring/waitid.c | local variable *iwa
 | | | | __io_waitid_cancel | io_uring/waitid.c | local variable *iwa
 | | | | io_waitid_drop_issue_ref | io_uring/waitid.c | local variable *iwa
@@ -533,7 +521,6 @@ io_waitid_async     | io_uring/waitid.h | struct io_kiocb *req, struct wait_opts
 | | | | io_waitid_wait | io_uring/waitid.c | local variable *iwa, function parameter
 | | | | io_waitid_prep | io_uring/waitid.c | local variable *iwa
 | | | | io_waitid | io_uring/waitid.c | local variable *iwa
-<!-- xattr.c -->
 io_xattr    | io_uring/xattr.c | struct file *file, struct kernel_xattr_ctx ctx, struct filename *filename |  __io_async_cancel | io_xattr_cleanup | io_uring/xattr.c | local variable *ix, function parameter
 | | | | __io_getxattr_prep | io_uring/xattr.c | local variable *ix, function parameter
 | | | | io_getxattr_prep | io_uring/xattr.c | local variable *ix, function parameter
