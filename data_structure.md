@@ -378,7 +378,6 @@ io_rsrc_node | rsrc.h | type (file/buffer), refs (refcount), tag (user tag), uni
 io_mapped_ubuf | rsrc.h | ubuf (user addr), len (buffer size), nr_bvecs, folio_shift, refs, acct_pages, is_kbuf, dir (IO_IMU_*), bvec[] | io_sqe_buffer_register | rsrc.c | Manages pinned user/kernel buffers
 | | | | io_buffer_unmap | rsrc.c | Manages pinned user/kernel buffers
 io_imu_folio_data | rsrc.h | nr_pages_head, nr_pages_mid, folio_shift, nr_folios | io_check_coalesce_buffer | rsrc.c | Tracks compound page info for buffer coalescing
-
 <!-- rw.c -->
 io_rw       | io_uring/rw.c | struct kiocb, u64 addr, u32 len, rwf_t flags  | io_iov_compact_buffer_select_prep | io_uring/rw.c | function parameter
 | | | | io_iov_buffer_select_prep | io_uring/rw.c | local variable, function parameter
