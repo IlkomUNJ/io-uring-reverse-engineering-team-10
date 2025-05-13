@@ -140,5 +140,40 @@ io_mapped_ubuf | rsrc.h | ubuf (user addr), len (buffer size), nr_bvecs, folio_s
 | | | | io_buffer_unmap | rsrc.c | Manages pinned user/kernel buffers
 io_imu_folio_data | rsrc.h | nr_pages_head, nr_pages_mid, folio_shift, nr_folios | io_check_coalesce_buffer | rsrc.c | Tracks compound page info for buffer coalescing
 
+
+io_rw       | io_uring/rw.c | struct kiocb, u64 addr, u32 len, rwf_t flags  | io_iov_compact_buffer_select_prep | io_uring/rw.c | function parameter
+| | | | io_iov_buffer_select_prep | io_uring/rw.c | local variable, function parameter
+| | | | __io_import_iovec | io_uring/rw.c | local variable, function parameter
+| | | | io_prep_rw_pi | io_uring/rw.c | function parameter
+| | | | io_prep_rw | io_uring/rw.c | local variable, function parameter
+| | | | io_prep_rw_fixed | io_uring/rw.c | local variable, function parameter
+| | | | io_read_mshot_prep | io_uring/rw.c | local variable, function parameter
+| | | | loff_t | io_uring/rw.c | local variable, function parameter
+| | | | io_rw_should_reissue | io_uring/rw.c | local variable, function parameter
+| | | | io_req_end_write | io_uring/rw.c | local variable, function parameter
+| | | | io_req_io_end | io_uring/rw.c | local variable, function parameter
+| | | | io_req_rw_complete | io_uring/rw.c | local variable, function parameter
+| | | | io_complete_rw | io_uring/rw.c | local variable, function parameter
+| | | | io_complete_rw_iopoll | io_uring/rw.c | local variable, function parameter
+| | | | io_rw_done | io_uring/rw.c | local variable, function parameter
+| | | | kiocb_done | io_uring/rw.c | local variable, function parameter
+| | | | loop_rw_iter | io_uring/rw.c | function parameter
+| | | | io_async_buf_func | io_uring/rw.c | local variable, function parameter
+| | | | io_rw_should_retry | io_uring/rw.c | local variable, function parameter
+| | | | io_iter_do_read | io_uring/rw.c | function parameter
+| | | | io_rw_init_file | io_uring/rw.c | local variable, function parameter
+| | | | __io_read | io_uring/rw.c | local variable, function parameter
+| | | | io_read_mshot | io_uring/rw.c | local variable, function parameter
+| | | | io_write | io_uring/rw.c | local variable, function parameter
+| | | | io_uring_classic_poll | io_uring/rw.c | local variable, function parameter
+---
+io_meta_state   | io_uring/rw.h | u32 seed, struct iov_iter_state iter_meta | struct io_async_rw | io_uring/rw.h | local variable
+io_async_rw   | io_uring/rw.h | size_t bytes_done, struct iovec *free_iovec, struct iov_iter iter, struct iov_iter_state iter_state, struct iovec fast_iov, int free_iov_nr, struct wait_page_queue wpq, struct uio_meta meta, struct io_meta_state meta_state | __cold | io_uring/io_uring.c | function parameter
+| | | | struct io_issue_def | io_uring/opdef.c | function parameter
+| | | | __io_import_iovec | io_uring/rw.c | function parameter
+| | | | io_import_iovec | io_uring/rw.c | function parameter
+| | | | io_rw_recycle | io_uring/rw.c | local variable
+
+
 If the following row value in a column is missing, assume the value is the same with the previous row in the same column. 
 Continue until all data structures documented properly.
