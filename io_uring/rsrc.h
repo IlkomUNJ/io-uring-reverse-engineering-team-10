@@ -52,42 +52,62 @@ struct io_imu_folio_data {
 };
 
 bool io_rsrc_cache_init(struct io_ring_ctx *ctx);
+/*
+ * Free all resources associated with a ring context.
+ */
 void io_rsrc_cache_free(struct io_ring_ctx *ctx);
 struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx, int type);
+/*
+ * Free a resource node when its reference count reaches zero.
+ */
 void io_free_rsrc_node(struct io_ring_ctx *ctx, struct io_rsrc_node *node);
+/* Free resource data structure and associated resources */
 void io_rsrc_data_free(struct io_ring_ctx *ctx, struct io_rsrc_data *data);
+/* Allocate resource data structure with specified capacity */
 int io_rsrc_data_alloc(struct io_rsrc_data *data, unsigned nr);
 
 struct io_rsrc_node *io_find_buf_node(struct io_kiocb *req,
 				      unsigned issue_flags);
+/* Import registered buffer vector for vectored IO */
 int io_import_reg_buf(struct io_kiocb *req, struct iov_iter *iter,
 			u64 buf_addr, size_t len, int ddir,
 			unsigned issue_flags);
+/* Import registered buffer vector for vectored IO */
 int io_import_reg_vec(int ddir, struct iov_iter *iter,
 			struct io_kiocb *req, struct iou_vec *vec,
 			unsigned nr_iovs, unsigned issue_flags);
+/* Prepare registered iovec from user-supplied iovec array */
 int io_prep_reg_iovec(struct io_kiocb *req, struct iou_vec *iv,
 			const struct iovec __user *uvec, size_t uvec_segs);
 
+/* Clone existing buffer registrations */		
 int io_register_clone_buffers(struct io_ring_ctx *ctx, void __user *arg);
+/* Unregister all buffers for a ring context */
 int io_sqe_buffers_unregister(struct io_ring_ctx *ctx);
+/* Register new buffers with optional tags */
 int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
 			    unsigned int nr_args, u64 __user *tags);
+/* Unregister all files for a ring context */
 int io_sqe_files_unregister(struct io_ring_ctx *ctx);
+/* Register new files with optional tags */
 int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
 			  unsigned nr_args, u64 __user *tags);
-
+/* Update existing file registrations */
 int io_register_files_update(struct io_ring_ctx *ctx, void __user *arg,
 			     unsigned nr_args);
+/* Update resource registrations */
 int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
 			    unsigned size, unsigned type);
+/* Register new resources of specified type */
 int io_register_rsrc(struct io_ring_ctx *ctx, void __user *arg,
 			unsigned int size, unsigned int type);
+/* Validate iovec structure */
 int io_buffer_validate(struct iovec *iov);
 
 bool io_check_coalesce_buffer(struct page **page_array, int nr_pages,
 			      struct io_imu_folio_data *data);
 
+				  /* Lookup resource node by index with bounds checking */
 static inline struct io_rsrc_node *io_rsrc_node_lookup(struct io_rsrc_data *data,
 						       int index)
 {
@@ -96,6 +116,7 @@ static inline struct io_rsrc_node *io_rsrc_node_lookup(struct io_rsrc_data *data
 	return NULL;
 }
 
+/* Decrement resource node reference count and free if zero */
 static inline void io_put_rsrc_node(struct io_ring_ctx *ctx, struct io_rsrc_node *node)
 {
 	lockdep_assert_held(&ctx->uring_lock);
@@ -103,6 +124,7 @@ static inline void io_put_rsrc_node(struct io_ring_ctx *ctx, struct io_rsrc_node
 		io_free_rsrc_node(ctx, node);
 }
 
+/* Reset resource node at given index if it exists */
 static inline bool io_reset_rsrc_node(struct io_ring_ctx *ctx,
 				      struct io_rsrc_data *data, int index)
 {
@@ -115,6 +137,7 @@ static inline bool io_reset_rsrc_node(struct io_ring_ctx *ctx,
 	return true;
 }
 
+/* Release all resource nodes associated with a request */
 static inline void io_req_put_rsrc_nodes(struct io_kiocb *req)
 {
 	if (req->file_node) {
@@ -127,6 +150,7 @@ static inline void io_req_put_rsrc_nodes(struct io_kiocb *req)
 	}
 }
 
+/* Assign resource node with proper reference counting */
 static inline void io_req_assign_rsrc_node(struct io_rsrc_node **dst_node,
 					   struct io_rsrc_node *node)
 {
@@ -134,6 +158,7 @@ static inline void io_req_assign_rsrc_node(struct io_rsrc_node **dst_node,
 	*dst_node = node;
 }
 
+/* Assign buffer node to request and set appropriate flag */
 static inline void io_req_assign_buf_node(struct io_kiocb *req,
 					  struct io_rsrc_node *node)
 {
@@ -141,20 +166,27 @@ static inline void io_req_assign_buf_node(struct io_kiocb *req,
 	req->flags |= REQ_F_BUF_NODE;
 }
 
+/* Update registered files for a request */
 int io_files_update(struct io_kiocb *req, unsigned int issue_flags);
+/* Prepare files update operation */
 int io_files_update_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe);
 
+/* Account memory pages to user's locked memory limit */
 int __io_account_mem(struct user_struct *user, unsigned long nr_pages);
 
+/* Release accounted memory pages */
 static inline void __io_unaccount_mem(struct user_struct *user,
 				      unsigned long nr_pages)
 {
 	atomic_long_sub(nr_pages, &user->locked_vm);
 }
 
+/* Free IO vector resources */
 void io_vec_free(struct iou_vec *iv);
+/* Reallocate IO vector storage */
 int io_vec_realloc(struct iou_vec *iv, unsigned nr_entries);
 
+/* Reset iovec information in IO vector structure */
 static inline void io_vec_reset_iovec(struct iou_vec *iv,
 				      struct iovec *iovec, unsigned nr)
 {
@@ -163,6 +195,7 @@ static inline void io_vec_reset_iovec(struct iou_vec *iv,
 	iv->nr = nr;
 }
 
+/* Free IO vector when KASAN is enabled for extra checking */
 static inline void io_alloc_cache_vec_kasan(struct iou_vec *iv)
 {
 	if (IS_ENABLED(CONFIG_KASAN))

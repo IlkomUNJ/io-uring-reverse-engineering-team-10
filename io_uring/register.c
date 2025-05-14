@@ -35,6 +35,10 @@
 #define IORING_MAX_RESTRICTIONS	(IORING_RESTRICTION_LAST + \
 				 IORING_REGISTER_LAST + IORING_OP_LAST)
 
+/**
+ * Probes supported io_uring operations and fills the user-provided structure
+ * with the results.
+ */			 
 static __cold int io_probe(struct io_ring_ctx *ctx, void __user *arg,
 			   unsigned nr_args)
 {
@@ -74,6 +78,10 @@ out:
 	return ret;
 }
 
+/**
+ * Unregisters a personality from the io_uring context.
+ * Removes the credentials associated with the given personality ID.
+ */
 int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
 {
 	const struct cred *creds;
@@ -87,7 +95,9 @@ int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
 	return -EINVAL;
 }
 
-
+/**
+ * Registers the current task's credentials as a personality in the io_uring context.
+ */
 static int io_register_personality(struct io_ring_ctx *ctx)
 {
 	const struct cred *creds;
@@ -155,6 +165,9 @@ err:
 	return ret;
 }
 
+/**
+ * Registers restrictions for the io_uring instance.
+ */
 static __cold int io_register_restrictions(struct io_ring_ctx *ctx,
 					   void __user *arg, unsigned int nr_args)
 {
@@ -177,6 +190,9 @@ static __cold int io_register_restrictions(struct io_ring_ctx *ctx,
 	return ret;
 }
 
+/**
+ * Enables the submission and completion rings for the io_uring instance.
+ */
 static int io_register_enable_rings(struct io_ring_ctx *ctx)
 {
 	if (!(ctx->flags & IORING_SETUP_R_DISABLED))
@@ -340,6 +356,10 @@ err:
 	return ret;
 }
 
+/**
+ * Registers a clock ID for the io_uring instance.
+ * Updates the clock offset and clock ID in the io_uring context.
+ */
 static int io_register_clock(struct io_ring_ctx *ctx,
 			     struct io_uring_clock_register __user *arg)
 {
@@ -377,6 +397,9 @@ struct io_ring_ctx_rings {
 	struct io_mapped_region ring_region;
 };
 
+/**
+ * Frees memory regions associated with the submission and completion rings.
+ */
 static void io_register_free_rings(struct io_ring_ctx *ctx,
 				   struct io_uring_params *p,
 				   struct io_ring_ctx_rings *r)
@@ -395,6 +418,9 @@ static void io_register_free_rings(struct io_ring_ctx *ctx,
 #define COPY_FLAGS	(IORING_SETUP_NO_SQARRAY | IORING_SETUP_SQE128 | \
 			 IORING_SETUP_CQE32 | IORING_SETUP_NO_MMAP)
 
+/**
+ * Resizes the submission and completion rings for the io_uring instance.
+ */
 static int io_register_resize_rings(struct io_ring_ctx *ctx, void __user *arg)
 {
 	struct io_uring_region_desc rd;
@@ -581,6 +607,9 @@ out:
 	return ret;
 }
 
+/**
+ * Registers a memory region for the io_uring instance.
+ */
 static int io_register_mem_region(struct io_ring_ctx *ctx, void __user *uarg)
 {
 	struct io_uring_mem_region_reg __user *reg_uptr = uarg;
@@ -626,6 +655,9 @@ static int io_register_mem_region(struct io_ring_ctx *ctx, void __user *uarg)
 	return 0;
 }
 
+/**
+ * Handles the io_uring_register syscall for various registration operations.
+ */
 static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
 			       void __user *arg, unsigned nr_args)
 	__releases(ctx->uring_lock)
@@ -877,6 +909,9 @@ struct file *io_uring_register_get_file(unsigned int fd, bool registered)
 /*
  * "blind" registration opcodes are ones where there's no ring given, and
  * hence the source fd must be -1.
+ */
+/**
+ * Handles "blind" registration opcodes where no ring is given.
  */
 static int io_uring_register_blind(unsigned int opcode, void __user *arg,
 				   unsigned int nr_args)

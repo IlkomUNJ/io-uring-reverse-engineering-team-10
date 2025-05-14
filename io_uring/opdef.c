@@ -817,6 +817,11 @@ const struct io_cold_def io_cold_defs[] = {
 	},
 };
 
+/**
+ * Retrieves the name of an io_uring operation (opcode) from the cold
+ * operation definitions table. Returns "INVALID" if the opcode is out
+ * of bounds.
+ */
 const char *io_uring_get_opcode(u8 opcode)
 {
 	if (opcode < IORING_OP_LAST)
@@ -832,6 +837,11 @@ bool io_uring_op_supported(u8 opcode)
 	return false;
 }
 
+/**
+ * Initializes the io_uring operation table by performing validation checks
+ * on the operation definitions. Ensures that all required fields are set
+ * correctly for each operation.
+ */
 void __init io_uring_optable_init(void)
 {
 	int i;

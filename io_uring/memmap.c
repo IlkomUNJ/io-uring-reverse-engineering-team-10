@@ -87,6 +87,9 @@ enum {
 	IO_REGION_F_SINGLE_REF			= 4,
 };
 
+/*
+ * Releases all resources associated with a memory region.
+ */
 void io_free_region(struct io_ring_ctx *ctx, struct io_mapped_region *mr)
 {
 	if (mr->pages) {
@@ -110,6 +113,11 @@ void io_free_region(struct io_ring_ctx *ctx, struct io_mapped_region *mr)
 	memset(mr, 0, sizeof(*mr));
 }
 
+/*
+ * Initializes virtual address mapping for a memory region.
+ * Attempts to use direct page address for single-folio regions,
+ * falls back to vmap for multi-page regions.
+ */
 static int io_region_init_ptr(struct io_mapped_region *mr)
 {
 	struct io_imu_folio_data ifd;
@@ -184,6 +192,10 @@ done:
 	return 0;
 }
 
+/*
+ * Creates a new memory region in the io_uring context.
+ * Handles both user-provided and kernel-allocated memory regions.
+ */
 int io_create_region(struct io_ring_ctx *ctx, struct io_mapped_region *mr,
 		     struct io_uring_region_desc *reg,
 		     unsigned long mmap_offset)
@@ -233,6 +245,10 @@ out_free:
 	return ret;
 }
 
+/*
+ * Safe version of region creation that uses a temporary region
+ * before publishing to avoid race conditions with mmap.
+ */
 int io_create_region_mmap_safe(struct io_ring_ctx *ctx, struct io_mapped_region *mr,
 				struct io_uring_region_desc *reg,
 				unsigned long mmap_offset)
@@ -389,16 +405,25 @@ unsigned long io_uring_get_unmapped_area(struct file *filp, unsigned long addr,
 
 #else /* !CONFIG_MMU */
 
+/*
+ * Basic mmap validation for NOMMU systems
+ */
 int io_uring_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	return is_nommu_shared_mapping(vma->vm_flags) ? 0 : -EINVAL;
 }
 
+/*
+ * Returns NOMMU mapping capabilities
+ */
 unsigned int io_uring_nommu_mmap_capabilities(struct file *file)
 {
 	return NOMMU_MAP_DIRECT | NOMMU_MAP_READ | NOMMU_MAP_WRITE;
 }
 
+/*
+ * Simplified unmapped area handling for NOMMU
+ */
 unsigned long io_uring_get_unmapped_area(struct file *file, unsigned long addr,
 					 unsigned long len, unsigned long pgoff,
 					 unsigned long flags)
