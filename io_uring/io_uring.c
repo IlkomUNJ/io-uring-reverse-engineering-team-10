@@ -295,6 +295,8 @@ static void io_free_alloc_caches(struct io_ring_ctx *ctx)
 	io_rsrc_cache_free(ctx);
 }
 
+// Allocates and initializes the io_uring context.
+// Sets up the SQ and CQ rings and initializes internal structures.
 static __cold struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
 {
 	struct io_ring_ctx *ctx;
@@ -2721,6 +2723,8 @@ static void io_req_caches_free(struct io_ring_ctx *ctx)
 	mutex_unlock(&ctx->uring_lock);
 }
 
+// Frees resources associated with the io_uring context.
+// Cleans up memory, unregisters resources, and destroys the context.
 static __cold void io_ring_ctx_free(struct io_ring_ctx *ctx)
 {
 	io_sq_thread_finish(ctx);
@@ -2801,6 +2805,8 @@ out:
 	spin_unlock(&ctx->completion_lock);
 }
 
+// Polls the io_uring file descriptor for readiness.
+// Checks for available SQ and CQ entries and pending work.
 static __poll_t io_uring_poll(struct file *file, poll_table *wait)
 {
 	struct io_ring_ctx *ctx = file->private_data;
@@ -2866,6 +2872,9 @@ static __cold bool io_cancel_ctx_cb(struct io_wq_work *work, void *data)
 
 	return req->ctx == data;
 }
+
+//Performs asynchronous cleanup work when an io_uring ring is being destroyed.
+//Frees deferred resources and completes pending teardown steps outside the syscall path.
 
 static __cold void io_ring_exit_work(struct work_struct *work)
 {
@@ -2968,6 +2977,10 @@ static __cold void io_ring_exit_work(struct work_struct *work)
 	io_ring_ctx_free(ctx);
 }
 
+//Waits for all inflight requests and async work to complete, then kills the context.
+//Ensures safe destruction of the ring after all I/O has settled.
+// Waits for all inflight requests and async work to complete, then kills the context.
+// Ensures safe destruction of the ring after all I/O has settled.
 static __cold void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
 {
 	unsigned long index;
@@ -2991,6 +3004,8 @@ static __cold void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
 	queue_work(iou_wq, &ctx->exit_work);
 }
 
+//Called when the io_uring file descriptor is closed.
+//Triggers context teardown, including request cancellation and memory release.
 static int io_uring_release(struct inode *inode, struct file *file)
 {
 	struct io_ring_ctx *ctx = file->private_data;
@@ -3005,6 +3020,8 @@ struct io_task_cancel {
 	bool all;
 };
 
+// Callback for canceling tasks in io_wq.
+// Matches tasks based on the provided context and cancellation flags.
 static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
 {
 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
@@ -3013,6 +3030,8 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
 	return io_match_task_safe(req, cancel->tctx, cancel->all);
 }
 
+// Attempts to cancel deferred file operations.
+// Removes matching requests from the deferred list and cancels them.
 static __cold bool io_cancel_defer_files(struct io_ring_ctx *ctx,
 					 struct io_uring_task *tctx,
 					 bool cancel_all)
@@ -3040,6 +3059,8 @@ static __cold bool io_cancel_defer_files(struct io_ring_ctx *ctx,
 	return true;
 }
 
+// Attempts to cancel requests in io_wq for the given context.
+// Iterates through task contexts and cancels matching requests.
 static __cold bool io_uring_try_cancel_iowq(struct io_ring_ctx *ctx)
 {
 	struct io_tctx_node *node;
@@ -3064,6 +3085,8 @@ static __cold bool io_uring_try_cancel_iowq(struct io_ring_ctx *ctx)
 	return ret;
 }
 
+// Attempts to cancel all requests in the context.
+// Handles cancellation for various request types and deferred work.
 static __cold bool io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
 						struct io_uring_task *tctx,
 						bool cancel_all,
@@ -3134,6 +3157,8 @@ static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
  * Find any io_uring ctx that this task has registered or done IO on, and cancel
  * requests. @sqd should be not-null IFF it's an SQPOLL thread cancellation.
  */
+// Cancels all io_uring requests for the current task.
+// Handles both tracked and untracked inflight requests.
 __cold void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
 {
 	struct io_uring_task *tctx = current->io_uring;
@@ -3219,6 +3244,8 @@ end_wait:
 	}
 }
 
+// Cancels all io_uring requests for the current task.
+// Cleans up resources and ensures no pending requests remain.
 void __io_uring_cancel(bool cancel_all)
 {
 	io_uring_unreg_ringfd();
@@ -3244,6 +3271,8 @@ static struct io_uring_reg_wait *io_get_ext_arg_reg(struct io_ring_ctx *ctx,
 	return ctx->cq_wait_arg + offset;
 }
 
+// Validates extended arguments for io_uring_enter.
+// Ensures the provided arguments are valid and compatible.
 static int io_validate_ext_arg(struct io_ring_ctx *ctx, unsigned flags,
 			       const void __user *argp, size_t argsz)
 {
@@ -3260,6 +3289,8 @@ static int io_validate_ext_arg(struct io_ring_ctx *ctx, unsigned flags,
 	return 0;
 }
 
+// Retrieves extended arguments for io_uring_enter.
+// Parses and validates the provided arguments.
 static int io_get_ext_arg(struct io_ring_ctx *ctx, unsigned flags,
 			  const void __user *argp, struct ext_arg *ext_arg)
 {
@@ -3333,6 +3364,8 @@ uaccess_end:
 #endif
 }
 
+// Handles the io_uring_enter syscall.
+// Submits requests and waits for completions based on the provided flags.
 SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
 		u32, min_complete, u32, flags, const void __user *, argp,
 		size_t, argsz)
@@ -3479,6 +3512,8 @@ bool io_is_uring_fops(struct file *file)
 	return file->f_op == &io_uring_fops;
 }
 
+// Allocates the SQ and CQ rings for the io_uring context.
+// Sets up memory regions and initializes ring structures.
 static __cold int io_allocate_scq_urings(struct io_ring_ctx *ctx,
 					 struct io_uring_params *p)
 {
@@ -3538,6 +3573,8 @@ static __cold int io_allocate_scq_urings(struct io_ring_ctx *ctx,
 	return 0;
 }
 
+// Installs the io_uring file descriptor.
+// Associates the file descriptor with the io_uring context.
 static int io_uring_install_fd(struct file *file)
 {
 	int fd;
@@ -3662,6 +3699,8 @@ int io_uring_fill_params(unsigned entries, struct io_uring_params *p)
 	return 0;
 }
 
+// Creates a new io_uring instance.
+// Allocates resources and initializes the io_uring context.
 static __cold int io_uring_create(unsigned entries, struct io_uring_params *p,
 				  struct io_uring_params __user *params)
 {
@@ -3850,6 +3889,8 @@ allowed_lsm:
 	return security_uring_allowed();
 }
 
+// Handles the io_uring_setup syscall.
+// Sets up an io_uring instance and returns the file descriptor.
 SYSCALL_DEFINE2(io_uring_setup, u32, entries,
 		struct io_uring_params __user *, params)
 {
@@ -3862,6 +3903,8 @@ SYSCALL_DEFINE2(io_uring_setup, u32, entries,
 	return io_uring_setup(entries, params);
 }
 
+// Initializes the io_uring subsystem during kernel boot.
+// Sets up caches, workqueues, and other global resources.
 static int __init io_uring_init(void)
 {
 	struct kmem_cache_args kmem_args = {

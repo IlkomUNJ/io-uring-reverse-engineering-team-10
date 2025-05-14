@@ -40,10 +40,18 @@ struct io_zcrx_ifq {
 };
 
 #if defined(CONFIG_IO_URING_ZCRX)
+// Register a zero-copy receive interface queue.
+// Allocates and initializes the queue and associated resources.
 int io_register_zcrx_ifq(struct io_ring_ctx *ctx,
 			 struct io_uring_zcrx_ifq_reg __user *arg);
+// Unregister all zero-copy receive interface queues.
+// Cleans up and releases all registered queues
 void io_unregister_zcrx_ifqs(struct io_ring_ctx *ctx);
+// Shutdown all zero-copy receive interface queues.
+// Reclaims buffers and closes the queues.
 void io_shutdown_zcrx_ifqs(struct io_ring_ctx *ctx);
+// Receive data using zero-copy receive.
+// Validates the protocol and delegates to the TCP handler.
 int io_zcrx_recv(struct io_kiocb *req, struct io_zcrx_ifq *ifq,
 		 struct socket *sock, unsigned int flags,
 		 unsigned issue_flags, unsigned int *len);
@@ -67,7 +75,12 @@ static inline int io_zcrx_recv(struct io_kiocb *req, struct io_zcrx_ifq *ifq,
 }
 #endif
 
+// Execute a zero-copy receive request.
+// Handles data reception and manages buffers.
 int io_recvzc(struct io_kiocb *req, unsigned int issue_flags);
+
+// Prepare a zero-copy receive request.
+// Validates the SQE and initializes parameters for zero-copy receive.
 int io_recvzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe);
 
 #endif
