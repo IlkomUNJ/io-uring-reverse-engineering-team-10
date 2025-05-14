@@ -26,6 +26,8 @@ struct io_epoll_wait {
 	struct epoll_event __user	*events;
 };
 
+
+//Prepares the epoll_ctl operation by extracting parameters from the submission queue entry (SQE) and copying the event data if required.
 int io_epoll_ctl_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_epoll *epoll = io_kiocb_to_cmd(req, struct io_epoll);
@@ -68,6 +70,7 @@ int io_epoll_ctl(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+//Prepares the epoll_wait operation by extracting parameters from the SQE, including the maximum number of events and the user-space event buffer.
 int io_epoll_wait_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_epoll_wait *iew = io_kiocb_to_cmd(req, struct io_epoll_wait);
@@ -80,6 +83,7 @@ int io_epoll_wait_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+//Executes the epoll_wait operation, which retrieves events from the epoll instance and sends them to the user-space buffer. Returns -EAGAIN if no events are available.
 int io_epoll_wait(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_epoll_wait *iew = io_kiocb_to_cmd(req, struct io_epoll_wait);

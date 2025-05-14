@@ -16,6 +16,7 @@
 #include "rsrc.h"
 
 #ifdef CONFIG_PROC_FS
+//Displays credential information (UID, GID, capabilities, and groups) for a specific personality in the io_uring instance.
 static __cold int io_uring_show_cred(struct seq_file *m, unsigned int id,
 		const struct cred *cred)
 {
@@ -47,6 +48,7 @@ static __cold int io_uring_show_cred(struct seq_file *m, unsigned int id,
 }
 
 #ifdef CONFIG_NET_RX_BUSY_POLL
+//Displays common NAPI (New API) tracking information, such as tracking strategy and polling details.
 static __cold void common_tracking_show_fdinfo(struct io_ring_ctx *ctx,
 					       struct seq_file *m,
 					       const char *tracking_strategy)
@@ -60,6 +62,7 @@ static __cold void common_tracking_show_fdinfo(struct io_ring_ctx *ctx,
 		seq_puts(m, "napi_prefer_busy_poll:\tfalse\n");
 }
 
+//Displays NAPI tracking information for the io_uring instance, depending on the tracking mode (inactive, dynamic, or static).
 static __cold void napi_show_fdinfo(struct io_ring_ctx *ctx,
 				    struct seq_file *m)
 {
@@ -80,6 +83,7 @@ static __cold void napi_show_fdinfo(struct io_ring_ctx *ctx,
 	}
 }
 #else
+//Displays NAPI tracking information for the io_uring instance, depending on the tracking mode (inactive, dynamic, or static).
 static inline void napi_show_fdinfo(struct io_ring_ctx *ctx,
 				    struct seq_file *m)
 {
@@ -90,6 +94,7 @@ static inline void napi_show_fdinfo(struct io_ring_ctx *ctx,
  * Caller holds a reference to the file already, we don't need to do
  * anything else to get an extra reference.
  */
+//Displays detailed file descriptor information for an io_uring instance, including SQ/CQ states, user files, user buffers, personalities, poll lists, and overflowed CQEs.
 __cold void io_uring_show_fdinfo(struct seq_file *m, struct file *file)
 {
 	struct io_ring_ctx *ctx = file->private_data;

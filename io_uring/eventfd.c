@@ -25,6 +25,7 @@ enum {
 	IO_EVENTFD_OP_SIGNAL_BIT,
 };
 
+//Frees the memory associated with an io_ev_fd structure and releases the eventfd context.
 static void io_eventfd_free(struct rcu_head *rcu)
 {
 	struct io_ev_fd *ev_fd = container_of(rcu, struct io_ev_fd, rcu);
@@ -33,12 +34,14 @@ static void io_eventfd_free(struct rcu_head *rcu)
 	kfree(ev_fd);
 }
 
+//Decrements the reference count of an io_ev_fd structure and frees it if the count reaches zero.
 static void io_eventfd_put(struct io_ev_fd *ev_fd)
 {
 	if (refcount_dec_and_test(&ev_fd->refs))
 		call_rcu(&ev_fd->rcu, io_eventfd_free);
 }
 
+//Signals the eventfd and releases the reference to the io_ev_fd structure.
 static void io_eventfd_do_signal(struct rcu_head *rcu)
 {
 	struct io_ev_fd *ev_fd = container_of(rcu, struct io_ev_fd, rcu);
@@ -47,6 +50,7 @@ static void io_eventfd_do_signal(struct rcu_head *rcu)
 	io_eventfd_put(ev_fd);
 }
 
+//Releases the RCU read lock and optionally decrements the reference count of the io_ev_fd.
 static void io_eventfd_release(struct io_ev_fd *ev_fd, bool put_ref)
 {
 	if (put_ref)
@@ -112,6 +116,7 @@ static struct io_ev_fd *io_eventfd_grab(struct io_ring_ctx *ctx)
 	return NULL;
 }
 
+//Signals the registered eventfd to notify about an event.
 void io_eventfd_signal(struct io_ring_ctx *ctx)
 {
 	struct io_ev_fd *ev_fd;
@@ -121,6 +126,7 @@ void io_eventfd_signal(struct io_ring_ctx *ctx)
 		io_eventfd_release(ev_fd, __io_eventfd_signal(ev_fd));
 }
 
+//Flushes and processes pending signals for the registered eventfd, ensuring it is only triggered when new events are posted.
 void io_eventfd_flush_signal(struct io_ring_ctx *ctx)
 {
 	struct io_ev_fd *ev_fd;
@@ -150,6 +156,7 @@ void io_eventfd_flush_signal(struct io_ring_ctx *ctx)
 	}
 }
 
+//Registers an eventfd with the io_ring_ctx for signaling events, optionally enabling asynchronous notifications.
 int io_eventfd_register(struct io_ring_ctx *ctx, void __user *arg,
 			unsigned int eventfd_async)
 {
@@ -189,6 +196,7 @@ int io_eventfd_register(struct io_ring_ctx *ctx, void __user *arg,
 	return 0;
 }
 
+//Unregisters the eventfd from the io_ring_ctx and releases its resources.
 int io_eventfd_unregister(struct io_ring_ctx *ctx)
 {
 	struct io_ev_fd *ev_fd;
