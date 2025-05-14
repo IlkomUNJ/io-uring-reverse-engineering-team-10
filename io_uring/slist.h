@@ -18,6 +18,7 @@
 	(list)->first = NULL;					\
 } while (0)
 
+// Inserts node immediately after prev in the list.
 static inline void wq_list_add_after(struct io_wq_work_node *node,
 				     struct io_wq_work_node *pos,
 				     struct io_wq_work_list *list)
@@ -30,6 +31,7 @@ static inline void wq_list_add_after(struct io_wq_work_node *node,
 		list->last = node;
 }
 
+// Adds node to the end (tail) of the list.
 static inline void wq_list_add_tail(struct io_wq_work_node *node,
 				    struct io_wq_work_list *list)
 {
@@ -43,6 +45,7 @@ static inline void wq_list_add_tail(struct io_wq_work_node *node,
 	}
 }
 
+// Adds node to the beginning (head) of the list.
 static inline void wq_list_add_head(struct io_wq_work_node *node,
 				    struct io_wq_work_list *list)
 {
@@ -52,6 +55,7 @@ static inline void wq_list_add_head(struct io_wq_work_node *node,
 	WRITE_ONCE(list->first, node);
 }
 
+// Cuts the list at last, moving the nodes from head up to last into cut.
 static inline void wq_list_cut(struct io_wq_work_list *list,
 			       struct io_wq_work_node *last,
 			       struct io_wq_work_node *prev)
@@ -67,6 +71,7 @@ static inline void wq_list_cut(struct io_wq_work_list *list,
 	last->next = NULL;
 }
 
+// internal function to insert all nodes from list between prev and next.
 static inline void __wq_list_splice(struct io_wq_work_list *list,
 				    struct io_wq_work_node *to)
 {
@@ -75,6 +80,7 @@ static inline void __wq_list_splice(struct io_wq_work_list *list,
 	INIT_WQ_LIST(list);
 }
 
+// Merges (splices) all nodes from list into target, typically appending them.
 static inline bool wq_list_splice(struct io_wq_work_list *list,
 				  struct io_wq_work_node *to)
 {
@@ -85,6 +91,7 @@ static inline bool wq_list_splice(struct io_wq_work_list *list,
 	return false;
 }
 
+// Adds node to the head of the list, treating it like a stack (LIFO).
 static inline void wq_stack_add_head(struct io_wq_work_node *node,
 				     struct io_wq_work_node *stack)
 {
@@ -92,6 +99,7 @@ static inline void wq_stack_add_head(struct io_wq_work_node *node,
 	stack->next = node;
 }
 
+// Deletes node from the list, assuming prev is the node right before node.
 static inline void wq_list_del(struct io_wq_work_list *list,
 			       struct io_wq_work_node *node,
 			       struct io_wq_work_node *prev)
@@ -99,6 +107,7 @@ static inline void wq_list_del(struct io_wq_work_list *list,
 	wq_list_cut(list, node, prev);
 }
 
+// Extracts a node (work item) from a stack in the io-wq single-linked list structure.
 static inline
 struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
 {
@@ -108,6 +117,7 @@ struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
 	return node;
 }
 
+// Retrieves the next work item in a single-linked list used by io-wq.
 static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
 {
 	if (!work->list.next)

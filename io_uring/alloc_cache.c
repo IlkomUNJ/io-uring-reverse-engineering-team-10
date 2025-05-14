@@ -2,6 +2,7 @@
 
 #include "alloc_cache.h"
 
+//Frees all cached entries in the allocation cache and releases the memory used by the cache.
 void io_alloc_cache_free(struct io_alloc_cache *cache,
 			 void (*free)(const void *))
 {
@@ -18,6 +19,7 @@ void io_alloc_cache_free(struct io_alloc_cache *cache,
 }
 
 /* returns false if the cache was initialized properly */
+//Initializes an allocation cache with a specified maximum number of entries, element size, and optional zero-initialization.
 bool io_alloc_cache_init(struct io_alloc_cache *cache,
 			 unsigned max_nr, unsigned int size,
 			 unsigned int init_bytes)
@@ -33,6 +35,7 @@ bool io_alloc_cache_init(struct io_alloc_cache *cache,
 	return false;
 }
 
+//Allocates a new object of the specified size from the cache and optionally clears its memory if init_clear is set.
 void *io_cache_alloc_new(struct io_alloc_cache *cache, gfp_t gfp)
 {
 	void *obj;

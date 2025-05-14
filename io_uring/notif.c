@@ -11,6 +11,8 @@
 
 static const struct ubuf_info_ops io_ubuf_ops;
 
+// Completion handler for notification task work.
+// Processes a chain of notifications and completes them in order.
 static void io_notif_tw_complete(struct io_kiocb *notif, io_tw_token_t tw)
 {
 	struct io_notif_data *nd = io_notif_to_data(notif);
@@ -33,6 +35,8 @@ static void io_notif_tw_complete(struct io_kiocb *notif, io_tw_token_t tw)
 	} while (nd);
 }
 
+// * Completion callback for zero-copy network operations.
+// * Handles both success and error cases for notification chains.
 void io_tx_ubuf_complete(struct sk_buff *skb, struct ubuf_info *uarg,
 			 bool success)
 {
@@ -60,6 +64,8 @@ void io_tx_ubuf_complete(struct sk_buff *skb, struct ubuf_info *uarg,
 	__io_req_task_work_add(notif, tw_flags);
 }
 
+// * Links a socket buffer to a notification structure.
+// * Handles chaining of multiple notifications for large transfers.
 static int io_link_skb(struct sk_buff *skb, struct ubuf_info *uarg)
 {
 	struct io_notif_data *nd, *prev_nd;

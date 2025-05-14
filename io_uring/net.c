@@ -102,6 +102,10 @@ static int io_sg_from_iter_iovec(struct sk_buff *skb,
 static int io_sg_from_iter(struct sk_buff *skb,
 			   struct iov_iter *from, size_t length);
 
+/**
+ * Prepares the io_shutdown command by validating the SQE fields and setting
+ * the shutdown mode. Forces the request to be executed asynchronously.
+ */
 int io_shutdown_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_shutdown *shutdown = io_kiocb_to_cmd(req, struct io_shutdown);
@@ -115,6 +119,10 @@ int io_shutdown_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Executes the shutdown system call on the socket associated with the request.
+ * Returns the result of the shutdown operation.
+ */
 int io_shutdown(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_shutdown *shutdown = io_kiocb_to_cmd(req, struct io_shutdown);
@@ -139,12 +147,21 @@ static bool io_net_retry(struct socket *sock, int flags)
 	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
 }
 
+/**
+ * Frees the memory allocated for the iovec in the io_async_msghdr structure.
+ * This function is used to clean up resources associated with asynchronous
+ * network messages.
+ */
 static void io_netmsg_iovec_free(struct io_async_msghdr *kmsg)
 {
 	if (kmsg->vec.iovec)
 		io_vec_free(&kmsg->vec);
 }
 
+/**
+ * Recycles the io_async_msghdr structure for reuse or frees it if recycling
+ * is not possible. Ensures proper cleanup of resources such as iovec.
+ */
 static void io_netmsg_recycle(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_async_msghdr *hdr = req->async_data;
@@ -181,6 +198,11 @@ static struct io_async_msghdr *io_msg_alloc_async(struct io_kiocb *req)
 	return hdr;
 }
 
+/**
+ * Prepares a multishot retry for a request by resetting relevant fields
+ * in the io_sr_msg structure. This function is used for retrying operations
+ * that involve multiple shots, such as multishot receives.
+ */
 static inline void io_mshot_prep_retry(struct io_kiocb *req,
 				       struct io_async_msghdr *kmsg)
 {
@@ -193,6 +215,10 @@ static inline void io_mshot_prep_retry(struct io_kiocb *req,
 	req->buf_index = sr->buf_group;
 }
 
+/**
+ * Imports a vector of I/O operations from user space into kernel space.
+ * This function is used to prepare data for network operations.
+ */
 static int io_net_import_vec(struct io_kiocb *req, struct io_async_msghdr *iomsg,
 			     const struct iovec __user *uiov, unsigned uvec_seg,
 			     int ddir)
@@ -220,6 +246,10 @@ static int io_net_import_vec(struct io_kiocb *req, struct io_async_msghdr *iomsg
 	return 0;
 }
 
+/**
+ * Copies a message header from a user-space structure to a kernel-space
+ * structure. This function is used for compatibility with 32-bit systems.
+ */
 static int io_compat_msg_copy_hdr(struct io_kiocb *req,
 				  struct io_async_msghdr *iomsg,
 				  struct compat_msghdr *msg, int ddir,
@@ -253,6 +283,10 @@ static int io_compat_msg_copy_hdr(struct io_kiocb *req,
 	return 0;
 }
 
+/**
+ * Prepares the io_socket operation by validating the SQE fields and
+ * configuring the request for socket creation.
+ */
 static int io_copy_msghdr_from_user(struct user_msghdr *msg,
 				    struct user_msghdr __user *umsg)
 {
@@ -271,6 +305,11 @@ ua_end:
 	return -EFAULT;
 }
 
+/**
+ * Copies the message header from user space to kernel space for the
+ * io_sendmsg or io_recvmsg operations. Handles compatibility with 32-bit
+ * systems and buffer selection logic.
+ */
 static int io_msg_copy_hdr(struct io_kiocb *req, struct io_async_msghdr *iomsg,
 			   struct user_msghdr *msg, int ddir,
 			   struct sockaddr __user **save_addr)
@@ -324,6 +363,10 @@ static int io_msg_copy_hdr(struct io_kiocb *req, struct io_async_msghdr *iomsg,
 	return 0;
 }
 
+/**
+ * Cleans up resources associated with asynchronous sendmsg or recvmsg
+ * operations. This includes freeing any allocated iovec structures.
+ */
 void io_sendmsg_recvmsg_cleanup(struct io_kiocb *req)
 {
 	struct io_async_msghdr *io = req->async_data;
@@ -331,6 +374,11 @@ void io_sendmsg_recvmsg_cleanup(struct io_kiocb *req)
 	io_netmsg_iovec_free(io);
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 static int io_send_setup(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -370,6 +418,11 @@ static int io_send_setup(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 static int io_sendmsg_setup(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -396,6 +449,11 @@ static int io_sendmsg_setup(struct io_kiocb *req, const struct io_uring_sqe *sqe
 
 #define SENDMSG_FLAGS (IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE)
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -432,6 +490,11 @@ int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return io_sendmsg_setup(req, sqe);
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 static void io_req_msg_cleanup(struct io_kiocb *req,
 			       unsigned int issue_flags)
 {
@@ -445,6 +508,11 @@ static void io_req_msg_cleanup(struct io_kiocb *req,
  * the segments, then it's a trivial questiont o answer. If we have residual
  * data in the iter, then loop the segments to figure out how much we
  * transferred.
+ */
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
  */
 static int io_bundle_nbufs(struct io_async_msghdr *kmsg, int ret)
 {
@@ -477,6 +545,11 @@ static int io_bundle_nbufs(struct io_async_msghdr *kmsg, int ret)
 	return nbufs;
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 static inline bool io_send_finish(struct io_kiocb *req, int *ret,
 				  struct io_async_msghdr *kmsg,
 				  unsigned issue_flags)
@@ -511,6 +584,11 @@ finish:
 	return true;
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -561,6 +639,11 @@ int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 static int io_send_select_buffer(struct io_kiocb *req, unsigned int issue_flags,
 				 struct io_async_msghdr *kmsg)
 {
@@ -609,6 +692,11 @@ static int io_send_select_buffer(struct io_kiocb *req, unsigned int issue_flags,
 	return 0;
 }
 
+/**
+ * Prepares the io_send command by setting up the necessary fields in the
+ * io_sr_msg structure. Handles address translation and buffer import if
+ * required.
+ */
 int io_send(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -675,6 +763,10 @@ retry_bundle:
 	return ret;
 }
 
+/**
+ * Prepares a multishot receive operation by setting up the necessary fields
+ * in the io_async_msghdr structure. Validates the header and control lengths.
+ */
 static int io_recvmsg_mshot_prep(struct io_kiocb *req,
 				 struct io_async_msghdr *iomsg,
 				 int namelen, size_t controllen)
@@ -699,6 +791,10 @@ static int io_recvmsg_mshot_prep(struct io_kiocb *req,
 	return 0;
 }
 
+/**
+ * Copies the message header from user space to kernel space for the
+ * io_recvmsg operation. Handles buffer selection and multishot preparation.
+ */
 static int io_recvmsg_copy_hdr(struct io_kiocb *req,
 			       struct io_async_msghdr *iomsg)
 {
@@ -719,6 +815,11 @@ static int io_recvmsg_copy_hdr(struct io_kiocb *req,
 					msg.msg_controllen);
 }
 
+/**
+ * Prepares the io_recvmsg operation by setting up the necessary fields in
+ * the io_sr_msg structure. Allocates resources for asynchronous message
+ * handling.
+ */
 static int io_recvmsg_prep_setup(struct io_kiocb *req)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -754,6 +855,10 @@ static int io_recvmsg_prep_setup(struct io_kiocb *req)
 #define RECVMSG_FLAGS (IORING_RECVSEND_POLL_FIRST | IORING_RECV_MULTISHOT | \
 			IORING_RECVSEND_BUNDLE)
 
+/**
+ * Prepares the io_recvmsg operation by validating the SQE fields and
+ * configuring the request for multishot or buffer selection if required.
+ */
 int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -816,6 +921,10 @@ int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  * Returns true if it is actually finished, or false if it should run
  * again (for multishot).
  */
+/**
+ * Finalizes the io_recv operation by updating the completion queue entry
+ * and determining whether to retry or complete the request.
+ */
 static inline bool io_recv_finish(struct io_kiocb *req, int *ret,
 				  struct io_async_msghdr *kmsg,
 				  bool mshot_finished, unsigned issue_flags)
@@ -874,6 +983,10 @@ finish:
 	return true;
 }
 
+/**
+ * Prepares a multishot receive operation by adjusting the buffer and
+ * control lengths. Ensures proper alignment of the user buffer.
+ */
 static int io_recvmsg_prep_multishot(struct io_async_msghdr *kmsg,
 				     struct io_sr_msg *sr, void __user **buf,
 				     size_t *len)
@@ -904,6 +1017,11 @@ struct io_recvmsg_multishot_hdr {
 	struct sockaddr_storage addr;
 };
 
+/**
+ * Executes a multishot receive operation by receiving data from the socket
+ * and copying the message header to user space. Handles truncation and
+ * alignment issues.
+ */
 static int io_recvmsg_multishot(struct socket *sock, struct io_sr_msg *io,
 				struct io_async_msghdr *kmsg,
 				unsigned int flags, bool *finished)
@@ -958,6 +1076,11 @@ static int io_recvmsg_multishot(struct socket *sock, struct io_sr_msg *io,
 			kmsg->controllen + err;
 }
 
+/**
+ * Executes the io_recvmsg operation by receiving a message from the socket
+ * associated with the request. Handles retries, multishot, and error
+ * conditions.
+ */
 int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1046,6 +1169,10 @@ retry_multishot:
 	return ret;
 }
 
+/**
+ * Selects a buffer for the io_recv operation based on the request's
+ * configuration. Handles buffer expansion and cleanup as needed.
+ */
 static int io_recv_buf_select(struct io_kiocb *req, struct io_async_msghdr *kmsg,
 			      size_t *len, unsigned int issue_flags)
 {
@@ -1110,6 +1237,11 @@ map_ubuf:
 	return 0;
 }
 
+/**
+ * Executes the io_recv operation by receiving data from the socket
+ * associated with the request. Handles retries, buffer selection, and
+ * error conditions.
+ */
 int io_recv(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1186,6 +1318,11 @@ out_free:
 	return ret;
 }
 
+/**
+ * Prepares the io_recvzc operation by validating the SQE fields and
+ * configuring the request for zero-copy receive. Ensures multishot mode
+ * is enabled.
+ */
 int io_recvzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_recvzc *zc = io_kiocb_to_cmd(req, struct io_recvzc);
@@ -1217,6 +1354,11 @@ int io_recvzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Executes the io_recvzc operation by performing a zero-copy receive on
+ * the socket associated with the request. Handles retries and error
+ * conditions.
+ */
 int io_recvzc(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_recvzc *zc = io_kiocb_to_cmd(req, struct io_recvzc);
@@ -1253,6 +1395,10 @@ int io_recvzc(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_RETRY;
 }
 
+/**
+ * Cleans up resources associated with the io_send_zc operation. Frees
+ * allocated buffers and flushes notifications.
+ */
 void io_send_zc_cleanup(struct io_kiocb *req)
 {
 	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1269,6 +1415,11 @@ void io_send_zc_cleanup(struct io_kiocb *req)
 #define IO_ZC_FLAGS_COMMON (IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_FIXED_BUF)
 #define IO_ZC_FLAGS_VALID  (IO_ZC_FLAGS_COMMON | IORING_SEND_ZC_REPORT_USAGE)
 
+/**
+ * Prepares the io_send_zc operation by validating the SQE fields and
+ * configuring the request for zero-copy send. Allocates resources for
+ * asynchronous message handling.
+ */
 int io_send_zc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1340,6 +1491,10 @@ int io_send_zc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Fills a socket buffer (skb) from an iovec iterator using zero-copy.
+ * Downgrades the skb to managed mode if necessary.
+ */
 static int io_sg_from_iter_iovec(struct sk_buff *skb,
 				 struct iov_iter *from, size_t length)
 {
@@ -1390,6 +1545,10 @@ static int io_sg_from_iter(struct sk_buff *skb,
 	return ret;
 }
 
+/**
+ * Fills a socket buffer (skb) from an iovec iterator. Handles cases where
+ * the skb is not in zero-copy managed mode by falling back to copying.
+ */
 static int io_send_zc_import(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1403,6 +1562,11 @@ static int io_send_zc_import(struct io_kiocb *req, unsigned int issue_flags)
 				ITER_SOURCE, issue_flags);
 }
 
+/**
+ * Executes the io_send_zc operation by sending data over the socket
+ * associated with the request using zero-copy. Handles retries and error
+ * conditions.
+ */
 int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *zc = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1473,6 +1637,11 @@ int io_send_zc(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/**
+ * Executes the io_sendmsg_zc operation by sending a message over the
+ * socket associated with the request using zero-copy. Handles retries
+ * and error conditions.
+ */
 int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1544,6 +1713,10 @@ int io_sendmsg_zc(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/**
+ * Handles failures in the io_send or io_recv operations by updating the
+ * completion queue entry and marking the request as failed.
+ */
 void io_sendrecv_fail(struct io_kiocb *req)
 {
 	struct io_sr_msg *sr = io_kiocb_to_cmd(req, struct io_sr_msg);
@@ -1559,6 +1732,10 @@ void io_sendrecv_fail(struct io_kiocb *req)
 #define ACCEPT_FLAGS	(IORING_ACCEPT_MULTISHOT | IORING_ACCEPT_DONTWAIT | \
 			 IORING_ACCEPT_POLL_FIRST)
 
+/**
+ * Prepares the io_accept operation by validating the SQE fields and
+ * configuring the request for multishot or non-blocking mode if required.
+ */
 int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_accept *accept = io_kiocb_to_cmd(req, struct io_accept);
@@ -1593,6 +1770,11 @@ int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Executes the io_accept operation by accepting a connection on the
+ * socket associated with the request. Handles retries, multishot, and
+ * error conditions.
+ */
 int io_accept(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_accept *accept = io_kiocb_to_cmd(req, struct io_accept);
@@ -1654,6 +1836,10 @@ retry:
 	return IOU_COMPLETE;
 }
 
+/**
+ * Prepares the io_socket operation by validating the SQE fields and
+ * configuring the request for socket creation.
+ */
 int io_socket_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_socket *sock = io_kiocb_to_cmd(req, struct io_socket);
@@ -1708,6 +1894,10 @@ int io_socket(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+/**
+ * Prepares the io_connect command by validating the SQE fields and converting
+ * the user-space address to a kernel-space address.
+ */
 int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_connect *conn = io_kiocb_to_cmd(req, struct io_connect);
@@ -1727,6 +1917,10 @@ int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return move_addr_to_kernel(conn->addr, conn->addr_len, &io->addr);
 }
 
+/**
+ * Executes the connect system call on the socket associated with the request.
+ * Handles non-blocking and in-progress connections.
+ */
 int io_connect(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_connect *connect = io_kiocb_to_cmd(req, struct io_connect);
@@ -1774,7 +1968,10 @@ out:
 	io_req_set_res(req, ret, 0);
 	return IOU_OK;
 }
-
+/**
+ * Prepares the io_bind command by validating the SQE fields and converting
+ * the user-space address to a kernel-space address.
+ */
 int io_bind_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_bind *bind = io_kiocb_to_cmd(req, struct io_bind);
@@ -1793,6 +1990,10 @@ int io_bind_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return move_addr_to_kernel(uaddr, bind->addr_len, &io->addr);
 }
 
+/**
+ * Executes the bind system call on the socket associated with the request.
+ * Returns the result of the bind operation.
+ */
 int io_bind(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_bind *bind = io_kiocb_to_cmd(req, struct io_bind);
@@ -1811,6 +2012,10 @@ int io_bind(struct io_kiocb *req, unsigned int issue_flags)
 	return 0;
 }
 
+/**
+ * Prepares the io_listen command by validating the SQE fields and setting
+ * the backlog value for the listen operation.
+ */
 int io_listen_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_listen *listen = io_kiocb_to_cmd(req, struct io_listen);
@@ -1822,6 +2027,10 @@ int io_listen_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+/**
+ * Executes the listen system call on the socket associated with the request.
+ * Sets the socket to listen mode with the specified backlog.
+ */
 int io_listen(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_listen *listen = io_kiocb_to_cmd(req, struct io_listen);
@@ -1839,6 +2048,10 @@ int io_listen(struct io_kiocb *req, unsigned int issue_flags)
 	return 0;
 }
 
+/**
+ * Frees the cached network message structure by releasing the memory
+ * allocated for the iovec and the io_async_msghdr structure.
+ */
 void io_netmsg_cache_free(const void *entry)
 {
 	struct io_async_msghdr *kmsg = (struct io_async_msghdr *) entry;

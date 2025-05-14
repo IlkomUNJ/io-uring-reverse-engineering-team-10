@@ -35,6 +35,7 @@ static struct io_rsrc_node *io_sqe_buffer_register(struct io_ring_ctx *ctx,
 
 #define IO_CACHED_BVECS_SEGS	32
 
+//Accounts for the number of pages pinned by the user and checks against memory limits.
 int __io_account_mem(struct user_struct *user, unsigned long nr_pages)
 {
 	unsigned long page_limit, cur_pages, new_pages;
@@ -55,6 +56,7 @@ int __io_account_mem(struct user_struct *user, unsigned long nr_pages)
 	return 0;
 }
 
+//Decreases the memory accounting for pinned pages in the io_ring_ctx.
 static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
 {
 	if (ctx->user)
@@ -64,6 +66,7 @@ static void io_unaccount_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
 		atomic64_sub(nr_pages, &ctx->mm_account->pinned_vm);
 }
 
+//Accounts for memory usage in the io_ring_ctx and its associated user.
 static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
 {
 	int ret;
@@ -79,7 +82,7 @@ static int io_account_mem(struct io_ring_ctx *ctx, unsigned long nr_pages)
 
 	return 0;
 }
-
+//Validates a user-provided buffer to ensure it meets size and alignment requirements.
 int io_buffer_validate(struct iovec *iov)
 {
 	unsigned long tmp, acct_len = iov->iov_len + (PAGE_SIZE - 1);
@@ -104,6 +107,8 @@ int io_buffer_validate(struct iovec *iov)
 	return 0;
 }
 
+//Releaes user pages pinned by a mapped buffer.
+
 static void io_release_ubuf(void *priv)
 {
 	struct io_mapped_ubuf *imu = priv;
@@ -121,7 +126,7 @@ static struct io_mapped_ubuf *io_alloc_imu(struct io_ring_ctx *ctx,
 	return kvmalloc(struct_size_t(struct io_mapped_ubuf, bvec, nr_bvecs),
 			GFP_KERNEL);
 }
-
+//io_free_imu
 static void io_free_imu(struct io_ring_ctx *ctx, struct io_mapped_ubuf *imu)
 {
 	if (imu->nr_bvecs <= IO_CACHED_BVECS_SEGS)
@@ -129,7 +134,7 @@ static void io_free_imu(struct io_ring_ctx *ctx, struct io_mapped_ubuf *imu)
 	else
 		kvfree(imu);
 }
-
+ //Unmaps a buffer and frees its associated memory if its reference count reaches zero.
 static void io_buffer_unmap(struct io_ring_ctx *ctx, struct io_mapped_ubuf *imu)
 {
 	if (!refcount_dec_and_test(&imu->refs))
@@ -168,13 +173,14 @@ bool io_rsrc_cache_init(struct io_ring_ctx *ctx)
 				   imu_cache_size, 0);
 	return ret;
 }
-
+//Frees the resource cache for nodes and buffers in the io_ring_ctx.
 void io_rsrc_cache_free(struct io_ring_ctx *ctx)
 {
 	io_alloc_cache_free(&ctx->node_cache, kfree);
 	io_alloc_cache_free(&ctx->imu_cache, kfree);
 }
 
+//Frees the resource cache for nodes and buffers in the io_ring_ctx.
 __cold void io_rsrc_data_free(struct io_ring_ctx *ctx,
 			      struct io_rsrc_data *data)
 {
@@ -189,6 +195,7 @@ __cold void io_rsrc_data_free(struct io_ring_ctx *ctx,
 	data->nr = 0;
 }
 
+//Allocates memory for the io_rsrc_data structure and its resource nodes.
 __cold int io_rsrc_data_alloc(struct io_rsrc_data *data, unsigned nr)
 {
 	data->nodes = kvmalloc_array(nr, sizeof(struct io_rsrc_node *),
@@ -200,6 +207,7 @@ __cold int io_rsrc_data_alloc(struct io_rsrc_data *data, unsigned nr)
 	return -ENOMEM;
 }
 
+//Updates the fixed file table with new file descriptors provided by the user.
 static int __io_sqe_files_update(struct io_ring_ctx *ctx,
 				 struct io_uring_rsrc_update2 *up,
 				 unsigned nr_args)
@@ -265,6 +273,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
 	return done ? done : err;
 }
 
+//Updates the fixed buffer table with new buffers provided by the user.
 static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
 				   struct io_uring_rsrc_update2 *up,
 				   unsigned int nr_args)
@@ -322,6 +331,7 @@ static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
 	return done ? done : err;
 }
 
+//Processes updates to registered resources (files or buffers) based on the provided type.
 static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned type,
 				     struct io_uring_rsrc_update2 *up,
 				     unsigned nr_args)
@@ -342,6 +352,7 @@ static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned type,
 	return -EINVAL;
 }
 
+//Updates registered files in the fixed file table using user-provided data.
 int io_register_files_update(struct io_ring_ctx *ctx, void __user *arg,
 			     unsigned nr_args)
 {
@@ -357,6 +368,7 @@ int io_register_files_update(struct io_ring_ctx *ctx, void __user *arg,
 	return __io_register_rsrc_update(ctx, IORING_RSRC_FILE, &up, nr_args);
 }
 
+//Updates registered resources (files or buffers) using user-provided data.
 int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
 			    unsigned size, unsigned type)
 {
@@ -371,6 +383,7 @@ int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
 	return __io_register_rsrc_update(ctx, type, &up, up.nr);
 }
 
+//Updates registered resources (files or buffers) using user-provided data.
 __cold int io_register_rsrc(struct io_ring_ctx *ctx, void __user *arg,
 			    unsigned int size, unsigned int type)
 {
@@ -403,6 +416,7 @@ __cold int io_register_rsrc(struct io_ring_ctx *ctx, void __user *arg,
 	return -EINVAL;
 }
 
+//Prepares a file update operation by extracting parameters from the submission queue entry (SQE).
 int io_files_update_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_rsrc_update *up = io_kiocb_to_cmd(req, struct io_rsrc_update);
@@ -420,6 +434,7 @@ int io_files_update_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+//Updates files in the fixed file table with automatic index allocation.
 static int io_files_update_with_index_alloc(struct io_kiocb *req,
 					    unsigned int issue_flags)
 {
@@ -459,6 +474,7 @@ static int io_files_update_with_index_alloc(struct io_kiocb *req,
 	return ret;
 }
 
+//Updates files in the fixed file table or allocates new indices for files.
 int io_files_update(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_rsrc_update *up = io_kiocb_to_cmd(req, struct io_rsrc_update);
@@ -488,6 +504,7 @@ int io_files_update(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+//Frees a resource node based on its type (file or buffer).
 void io_free_rsrc_node(struct io_ring_ctx *ctx, struct io_rsrc_node *node)
 {
 	if (node->tag)
@@ -508,6 +525,7 @@ void io_free_rsrc_node(struct io_ring_ctx *ctx, struct io_rsrc_node *node)
 	io_cache_free(&ctx->node_cache, node);
 }
 
+//Unregisters all files from the fixed file table.
 int io_sqe_files_unregister(struct io_ring_ctx *ctx)
 {
 	if (!ctx->file_table.data.nr)
@@ -518,6 +536,7 @@ int io_sqe_files_unregister(struct io_ring_ctx *ctx)
 	return 0;
 }
 
+//Registers files in the fixed file table using user-provided file descriptors.
 int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
 			  unsigned nr_args, u64 __user *tags)
 {
@@ -587,6 +606,7 @@ fail:
 	return ret;
 }
 
+//Unregisters all buffers from the fixed buffer table.
 int io_sqe_buffers_unregister(struct io_ring_ctx *ctx)
 {
 	if (!ctx->buf_table.nr)
@@ -636,6 +656,7 @@ static bool headpage_already_acct(struct io_ring_ctx *ctx, struct page **pages,
 	return false;
 }
 
+//Accounts for memory pages pinned by a buffer and avoids double accounting for huge pages.
 static int io_buffer_account_pin(struct io_ring_ctx *ctx, struct page **pages,
 				 int nr_pages, struct io_mapped_ubuf *imu,
 				 struct page **last_hpage)
@@ -837,6 +858,7 @@ done:
 	return node;
 }
 
+//Registers buffers in the fixed buffer table using user-provided buffer addresses and tags.
 int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
 			    unsigned int nr_args, u64 __user *tags)
 {
@@ -907,6 +929,7 @@ int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
 	return ret;
 }
 
+//Registers a buffer vector (bvec) in the fixed buffer table using a request and a release function.
 int io_buffer_register_bvec(struct io_uring_cmd *cmd, struct request *rq,
 			    void (*release)(void *), unsigned int index,
 			    unsigned int issue_flags)
@@ -969,6 +992,7 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(io_buffer_register_bvec);
 
+//Unregisters a buffer vector (bvec) from the fixed buffer table using a request and an index.
 int io_buffer_unregister_bvec(struct io_uring_cmd *cmd, unsigned int index,
 			      unsigned int issue_flags)
 {
@@ -1002,6 +1026,7 @@ unlock:
 }
 EXPORT_SYMBOL_GPL(io_buffer_unregister_bvec);
 
+//Validates the range of a fixed buffer address and its length against the mapped region.
 static int validate_fixed_range(u64 buf_addr, size_t len,
 				const struct io_mapped_ubuf *imu)
 {
@@ -1016,7 +1041,7 @@ static int validate_fixed_range(u64 buf_addr, size_t len,
 		return -EFAULT;
 	return 0;
 }
-
+//Imports a fixed buffer into an I/O iterator, validating the address and length.
 static int io_import_fixed(int ddir, struct iov_iter *iter,
 			   struct io_mapped_ubuf *imu,
 			   u64 buf_addr, size_t len)
@@ -1115,6 +1140,7 @@ int io_import_reg_buf(struct io_kiocb *req, struct iov_iter *iter,
 }
 
 /* Lock two rings at once. The rings must be different! */
+//Locks two io_ring_ctx instances simultaneously to avoid deadlocks.
 static void lock_two_rings(struct io_ring_ctx *ctx1, struct io_ring_ctx *ctx2)
 {
 	if (ctx1 > ctx2)
@@ -1276,6 +1302,7 @@ int io_register_clone_buffers(struct io_ring_ctx *ctx, void __user *arg)
 	return ret;
 }
 
+//Frees the memory allocated for the iou_vec structure.
 void io_vec_free(struct iou_vec *iv)
 {
 	if (!iv->iovec)
@@ -1299,7 +1326,7 @@ int io_vec_realloc(struct iou_vec *iv, unsigned nr_entries)
 	iv->nr = nr_entries;
 	return 0;
 }
-
+//Fills an I/O vector (iovec) with data from a user buffer, validating the address and length.
 static int io_vec_fill_bvec(int ddir, struct iov_iter *iter,
 				struct io_mapped_ubuf *imu,
 				struct iovec *iovec, unsigned nr_iovs,
@@ -1361,7 +1388,7 @@ static int io_estimate_bvec_size(struct iovec *iov, unsigned nr_iovs,
 		max_segs += (iov[i].iov_len >> shift) + 2;
 	return max_segs;
 }
-
+//Fills an I/O vector (iovec) with data from a kernel buffer, validating the address and length.
 static int io_vec_fill_kern_bvec(int ddir, struct iov_iter *iter,
 				 struct io_mapped_ubuf *imu,
 				 struct iovec *iovec, unsigned nr_iovs,
@@ -1389,7 +1416,7 @@ static int io_vec_fill_kern_bvec(int ddir, struct iov_iter *iter,
 	iov_iter_bvec(iter, ddir, res_bvec, res_idx, total_len);
 	return 0;
 }
-
+//Calculates the size of a kernel buffer vector (bvec) based on the provided I/O vector and mapped user buffer.
 static int iov_kern_bvec_size(const struct iovec *iov,
 			      const struct io_mapped_ubuf *imu,
 			      unsigned int *nr_seg)
@@ -1412,7 +1439,7 @@ static int iov_kern_bvec_size(const struct iovec *iov,
 	*nr_seg = i - start;
 	return 0;
 }
-
+//Calculates the size of a kernel buffer vector (bvec) based on the provided I/O vector and mapped user buffer.
 static int io_kern_bvec_size(struct iovec *iov, unsigned nr_iovs,
 			     struct io_mapped_ubuf *imu, unsigned *nr_segs)
 {
@@ -1437,7 +1464,7 @@ static int io_kern_bvec_size(struct iovec *iov, unsigned nr_iovs,
 		return -EINVAL;
 	return 0;
 }
-
+//Imports a registered vector of buffers into an I/O iterator, validating the address and length.
 int io_import_reg_vec(int ddir, struct iov_iter *iter,
 			struct io_kiocb *req, struct iou_vec *vec,
 			unsigned nr_iovs, unsigned issue_flags)
@@ -1497,7 +1524,7 @@ int io_import_reg_vec(int ddir, struct iov_iter *iter,
 
 	return io_vec_fill_bvec(ddir, iter, imu, iov, nr_iovs, vec);
 }
-
+//Imports a registered vector of buffers into an I/O iterator, validating the address and length.
 int io_prep_reg_iovec(struct io_kiocb *req, struct iou_vec *iv,
 		      const struct iovec __user *uvec, size_t uvec_segs)
 {

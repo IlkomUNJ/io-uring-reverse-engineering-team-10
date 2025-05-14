@@ -73,6 +73,7 @@ static bool io_cancel_cb(struct io_wq_work *work, void *data)
 	return io_cancel_req_match(req, cd);
 }
 
+//Attempts to cancel a single asynchronous request in the work queue.
 static int io_async_cancel_one(struct io_uring_task *tctx,
 			       struct io_cancel_data *cd)
 {
@@ -100,6 +101,7 @@ static int io_async_cancel_one(struct io_uring_task *tctx,
 	return ret;
 }
 
+//Attempts to cancel a request by checking various subsystems (poll, timeout, futex, etc.).
 int io_try_cancel(struct io_uring_task *tctx, struct io_cancel_data *cd,
 		  unsigned issue_flags)
 {
@@ -135,6 +137,7 @@ int io_try_cancel(struct io_uring_task *tctx, struct io_cancel_data *cd,
 	return ret;
 }
 
+//Prepares the asynchronous cancellation operation by extracting parameters from the submission queue entry (SQE).
 int io_async_cancel_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_cancel *cancel = io_kiocb_to_cmd(req, struct io_cancel);
@@ -162,6 +165,7 @@ int io_async_cancel_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+//Performs the actual cancellation of requests, iterating through all tasks if necessary.
 static int __io_async_cancel(struct io_cancel_data *cd,
 			     struct io_uring_task *tctx,
 			     unsigned int issue_flags)
@@ -195,6 +199,7 @@ static int __io_async_cancel(struct io_cancel_data *cd,
 	return all ? nr : ret;
 }
 
+//Executes the asynchronous cancellation of a request, handling file descriptors and cancellation flags.
 int io_async_cancel(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_cancel *cancel = io_kiocb_to_cmd(req, struct io_cancel);
@@ -232,6 +237,7 @@ done:
 	return IOU_OK;
 }
 
+//Performs a synchronous cancellation of a request, handling fixed file descriptors if required.
 static int __io_sync_cancel(struct io_uring_task *tctx,
 			    struct io_cancel_data *cd, int fd)
 {
@@ -252,7 +258,7 @@ static int __io_sync_cancel(struct io_uring_task *tctx,
 
 	return __io_async_cancel(cd, tctx, 0);
 }
-
+//Performs a synchronous cancellation of a request using user-provided arguments, with optional timeout handling.
 int io_sync_cancel(struct io_ring_ctx *ctx, void __user *arg)
 	__must_hold(&ctx->uring_lock)
 {
@@ -363,6 +369,7 @@ bool io_cancel_remove_all(struct io_ring_ctx *ctx, struct io_uring_task *tctx,
 	return found;
 }
 
+//Removes and cancels specific requests from a list based on the cancellation criteria.
 int io_cancel_remove(struct io_ring_ctx *ctx, struct io_cancel_data *cd,
 		     unsigned int issue_flags, struct hlist_head *list,
 		     bool (*cancel)(struct io_kiocb *))

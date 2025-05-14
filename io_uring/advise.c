@@ -28,6 +28,7 @@ struct io_madvise {
 	u32				advice;
 };
 
+//Prepares the madvise operation by extracting parameters from the submission queue entry (SQE). Returns -EOPNOTSUPP if the feature is not supported.
 int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
@@ -48,6 +49,7 @@ int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 #endif
 }
 
+//Executes the madvise operation, which provides memory management advice for a memory range. Returns -EOPNOTSUPP if the feature is not supported.
 int io_madvise(struct io_kiocb *req, unsigned int issue_flags)
 {
 #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
@@ -76,6 +78,7 @@ static bool io_fadvise_force_async(struct io_fadvise *fa)
 	}
 }
 
+//Prepares the fadvise operation by extracting parameters from the SQE and setting the appropriate flags if the operation requires asynchronous execution.
 int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_fadvise *fa = io_kiocb_to_cmd(req, struct io_fadvise);
@@ -93,6 +96,7 @@ int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+//Executes the fadvise operation, which provides advice about file access patterns to the kernel. Handles errors and sets the result for the request.
 int io_fadvise(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_fadvise *fa = io_kiocb_to_cmd(req, struct io_fadvise);

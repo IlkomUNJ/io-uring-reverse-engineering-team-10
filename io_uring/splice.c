@@ -24,6 +24,7 @@ struct io_splice {
 	struct io_rsrc_node		*rsrc_node;
 };
 
+// Prepares an internal splice request, setting up necessary state for the operation.
 static int __io_splice_prep(struct io_kiocb *req,
 			    const struct io_uring_sqe *sqe)
 {
@@ -40,6 +41,7 @@ static int __io_splice_prep(struct io_kiocb *req,
 	return 0;
 }
 
+// Sets up a tee operation, which duplicates data between pipes without consuming it.
 int io_tee_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	if (READ_ONCE(sqe->splice_off_in) || READ_ONCE(sqe->off))
@@ -47,6 +49,7 @@ int io_tee_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return __io_splice_prep(req, sqe);
 }
 
+// Cleans up after a splice operation, releasing any temporary state or resources.
 void io_splice_cleanup(struct io_kiocb *req)
 {
 	struct io_splice *sp = io_kiocb_to_cmd(req, struct io_splice);
@@ -55,6 +58,7 @@ void io_splice_cleanup(struct io_kiocb *req)
 		io_put_rsrc_node(req->ctx, sp->rsrc_node);
 }
 
+// Retrieves a file structure for a splice operation in the context of io_uring.
 static struct file *io_splice_get_file(struct io_kiocb *req,
 				       unsigned int issue_flags)
 {
@@ -78,6 +82,7 @@ static struct file *io_splice_get_file(struct io_kiocb *req,
 	return file;
 }
 
+// Performs the tee operation, duplicating the data inside the pipe buffer.
 int io_tee(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_splice *sp = io_kiocb_to_cmd(req, struct io_splice);
@@ -106,6 +111,7 @@ done:
 	return IOU_OK;
 }
 
+// Prepares a full splice operation from a submission queue entry (SQE).
 int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_splice *sp = io_kiocb_to_cmd(req, struct io_splice);
@@ -115,6 +121,7 @@ int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return __io_splice_prep(req, sqe);
 }
 
+// Executes the actual splice system call, moving data between file descriptors.
 int io_splice(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_splice *sp = io_kiocb_to_cmd(req, struct io_splice);

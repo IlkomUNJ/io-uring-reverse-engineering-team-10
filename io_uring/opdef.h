@@ -47,5 +47,8 @@ extern const struct io_cold_def io_cold_defs[];
 
 bool io_uring_op_supported(u8 opcode);
 
+/**
+Initializes the operation tables during kernel startup.
+ */
 void io_uring_optable_init(void);
 #endif

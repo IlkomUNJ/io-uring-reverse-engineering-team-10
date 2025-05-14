@@ -32,12 +32,18 @@ static struct io_napi_entry *io_napi_hash_find(struct hlist_head *hash_list,
 	return NULL;
 }
 
+/**
+Converts network timing value to kernel time format by shifting left.
+ */
 static inline ktime_t net_to_ktime(unsigned long t)
 {
 	/* napi approximating usecs, reverse busy_loop_current_time */
 	return ns_to_ktime(t << 10);
 }
 
+/**
+Adds a new NAPI ID to the context after validation and checking for duplicates.
+ */
 int __io_napi_add_id(struct io_ring_ctx *ctx, unsigned int napi_id)
 {
 	struct hlist_head *hash_list;
@@ -81,6 +87,9 @@ int __io_napi_add_id(struct io_ring_ctx *ctx, unsigned int napi_id)
 	return 0;
 }
 
+/**
+Removes a NAPI ID from the context if it exists.
+ */
 static int __io_napi_del_id(struct io_ring_ctx *ctx, unsigned int napi_id)
 {
 	struct hlist_head *hash_list;
@@ -102,6 +111,9 @@ static int __io_napi_del_id(struct io_ring_ctx *ctx, unsigned int napi_id)
 	return 0;
 }
 
+/**
+Cleans up expired NAPI entries from the context.
+ */
 static void __io_napi_remove_stale(struct io_ring_ctx *ctx)
 {
 	struct io_napi_entry *e;
@@ -122,12 +134,18 @@ static void __io_napi_remove_stale(struct io_ring_ctx *ctx)
 	}
 }
 
+/**
+Wrapper that conditionally calls stale entry removal.
+ */
 static inline void io_napi_remove_stale(struct io_ring_ctx *ctx, bool is_stale)
 {
 	if (is_stale)
 		__io_napi_remove_stale(ctx);
 }
 
+/**
+Checks if the busy loop has exceeded its time limit.
+ */
 static inline bool io_napi_busy_loop_timeout(ktime_t start_time,
 					     ktime_t bp)
 {
@@ -191,6 +209,9 @@ dynamic_tracking_do_busy_loop(struct io_ring_ctx *ctx,
 	return is_stale;
 }
 
+/**
+Selects and executes the appropriate busy loop strategy based on tracking mode.
+ */
 static inline bool
 __io_napi_do_busy_loop(struct io_ring_ctx *ctx,
 		       bool (*loop_end)(void *, unsigned long),
@@ -201,6 +222,9 @@ __io_napi_do_busy_loop(struct io_ring_ctx *ctx,
 	return dynamic_tracking_do_busy_loop(ctx, loop_end, loop_end_arg);
 }
 
+/**
+Main busy poll loop that handles both single and multiple NAPI entries.
+ */
 static void io_napi_blocking_busy_loop(struct io_ring_ctx *ctx,
 				       struct io_wait_queue *iowq)
 {

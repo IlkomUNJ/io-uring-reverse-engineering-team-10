@@ -32,6 +32,7 @@ struct io_provide_buf {
 	__u16				bid;
 };
 
+// Increments the commit counter for kernel buffers, indicating that a buffer has been partially or fully used.
 static bool io_kbuf_inc_commit(struct io_buffer_list *bl, int len)
 {
 	while (len) {
@@ -51,6 +52,7 @@ static bool io_kbuf_inc_commit(struct io_buffer_list *bl, int len)
 	return true;
 }
 
+// Commits kernel buffer operations, marking them as complete and ready for further processing.
 bool io_kbuf_commit(struct io_kiocb *req,
 		    struct io_buffer_list *bl, int len, int nr)
 {
@@ -67,6 +69,7 @@ bool io_kbuf_commit(struct io_kiocb *req,
 	return true;
 }
 
+// Retrieves the current list of I/O buffers for a specific operation or context.
 static inline struct io_buffer_list *io_buffer_get_list(struct io_ring_ctx *ctx,
 							unsigned int bgid)
 {
@@ -75,6 +78,7 @@ static inline struct io_buffer_list *io_buffer_get_list(struct io_ring_ctx *ctx,
 	return xa_load(&ctx->io_bl_xa, bgid);
 }
 
+// Adds a buffer to an existing list, extending the buffer chain for future operations.
 static int io_buffer_add_list(struct io_ring_ctx *ctx,
 			      struct io_buffer_list *bl, unsigned int bgid)
 {
@@ -88,6 +92,7 @@ static int io_buffer_add_list(struct io_ring_ctx *ctx,
 	return xa_err(xa_store(&ctx->io_bl_xa, bgid, bl, GFP_KERNEL));
 }
 
+// Removes or discards a legacy kernel buffer, freeing associated resources.
 void io_kbuf_drop_legacy(struct io_kiocb *req)
 {
 	if (WARN_ON_ONCE(!(req->flags & REQ_F_BUFFER_SELECTED)))
@@ -98,6 +103,7 @@ void io_kbuf_drop_legacy(struct io_kiocb *req)
 	req->kbuf = NULL;
 }
 
+// Recycles a legacy kernel buffer, returning it to a reusable state for efficiency.
 bool io_kbuf_recycle_legacy(struct io_kiocb *req, unsigned issue_flags)
 {
 	struct io_ring_ctx *ctx = req->ctx;
@@ -116,6 +122,7 @@ bool io_kbuf_recycle_legacy(struct io_kiocb *req, unsigned issue_flags)
 	return true;
 }
 
+// Selects a user-provided buffer for an I/O operation, choosing the appropriate buffer based on the context.
 static void __user *io_provided_buffer_select(struct io_kiocb *req, size_t *len,
 					      struct io_buffer_list *bl)
 {
@@ -136,6 +143,7 @@ static void __user *io_provided_buffer_select(struct io_kiocb *req, size_t *len,
 	return NULL;
 }
 
+// Handles selection from multiple user-provided buffers for batch processing.
 static int io_provided_buffers_select(struct io_kiocb *req, size_t *len,
 				      struct io_buffer_list *bl,
 				      struct iovec *iov)
@@ -151,6 +159,7 @@ static int io_provided_buffers_select(struct io_kiocb *req, size_t *len,
 	return 1;
 }
 
+// Selects a buffer from a ring buffer, typically in shared memory or a circular buffer setup.
 static void __user *io_ring_buffer_select(struct io_kiocb *req, size_t *len,
 					  struct io_buffer_list *bl,
 					  unsigned int issue_flags)
@@ -192,6 +201,7 @@ static void __user *io_ring_buffer_select(struct io_kiocb *req, size_t *len,
 	return ret;
 }
 
+// General buffer selection function, picking the appropriate kernel or user buffer for an operation.
 void __user *io_buffer_select(struct io_kiocb *req, size_t *len,
 			      unsigned int issue_flags)
 {
@@ -215,6 +225,7 @@ void __user *io_buffer_select(struct io_kiocb *req, size_t *len,
 /* cap it at a reasonable 256, will be one page even for 4K */
 #define PEEK_MAX_IMPORT		256
 
+// Peeks at the state or content of buffers in a ring, without altering their state.
 static int io_ring_buffers_peek(struct io_kiocb *req, struct buf_sel_arg *arg,
 				struct io_buffer_list *bl)
 {
@@ -294,6 +305,7 @@ static int io_ring_buffers_peek(struct io_kiocb *req, struct buf_sel_arg *arg,
 	return iov - arg->iovs;
 }
 
+// determines the most appropriate buffer(s) based on the context, such as the size of the data and the availability of buffers.
 int io_buffers_select(struct io_kiocb *req, struct buf_sel_arg *arg,
 		      unsigned int issue_flags)
 {
@@ -327,6 +339,7 @@ out_unlock:
 	return ret;
 }
 
+// Similar to io_ring_buffers_peek, but applies to generic I/O buffers.
 int io_buffers_peek(struct io_kiocb *req, struct buf_sel_arg *arg)
 {
 	struct io_ring_ctx *ctx = req->ctx;
@@ -350,6 +363,7 @@ int io_buffers_peek(struct io_kiocb *req, struct buf_sel_arg *arg)
 	return io_provided_buffers_select(req, &arg->max_len, bl, arg->iovs);
 }
 
+// Internal function for releasing a ring buffer back to the kernel buffer pool.
 static inline bool __io_put_kbuf_ring(struct io_kiocb *req, int len, int nr)
 {
 	struct io_buffer_list *bl = req->buf_list;
@@ -363,6 +377,7 @@ static inline bool __io_put_kbuf_ring(struct io_kiocb *req, int len, int nr)
 	return ret;
 }
 
+// Internal function for releasing generic kernel buffers, cleaning up resources.
 unsigned int __io_put_kbufs(struct io_kiocb *req, int len, int nbufs)
 {
 	unsigned int ret;
@@ -379,6 +394,7 @@ unsigned int __io_put_kbufs(struct io_kiocb *req, int len, int nbufs)
 	return ret;
 }
 
+//  Internal function for removing buffers from a list or a pool.
 static int __io_remove_buffers(struct io_ring_ctx *ctx,
 			       struct io_buffer_list *bl, unsigned nbufs)
 {
@@ -415,12 +431,14 @@ static int __io_remove_buffers(struct io_ring_ctx *ctx,
 	return i;
 }
 
+// Frees a buffer list, releasing all associated memory and resources
 static void io_put_bl(struct io_ring_ctx *ctx, struct io_buffer_list *bl)
 {
 	__io_remove_buffers(ctx, bl, -1U);
 	kfree(bl);
 }
 
+// Destroys a set of buffers, ensuring all resources are released and no references remain.
 void io_destroy_buffers(struct io_ring_ctx *ctx)
 {
 	struct io_buffer_list *bl;
@@ -439,6 +457,7 @@ void io_destroy_buffers(struct io_ring_ctx *ctx)
 	}
 }
 
+// Destroys a specific buffer list, releasing resources linked to the list.
 static void io_destroy_bl(struct io_ring_ctx *ctx, struct io_buffer_list *bl)
 {
 	scoped_guard(mutex, &ctx->mmap_lock)
@@ -446,6 +465,7 @@ static void io_destroy_bl(struct io_ring_ctx *ctx, struct io_buffer_list *bl)
 	io_put_bl(ctx, bl);
 }
 
+// Prepares for removing buffers, validating the operation and setting up prerequisites.
 int io_remove_buffers_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_provide_buf *p = io_kiocb_to_cmd(req, struct io_provide_buf);
@@ -465,6 +485,7 @@ int io_remove_buffers_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+// Executes the removal of buffers, cleaning them from the system or user space.
 int io_remove_buffers(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_provide_buf *p = io_kiocb_to_cmd(req, struct io_provide_buf);
@@ -489,6 +510,7 @@ int io_remove_buffers(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+// Prepares to provide buffers for use, setting up structures and allocating space.
 int io_provide_buffers_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	unsigned long size, tmp_check;
@@ -525,6 +547,7 @@ int io_provide_buffers_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
 	return 0;
 }
 
+// Adds new buffers to the kernel or user space pool for future I/O operations.
 static int io_add_buffers(struct io_ring_ctx *ctx, struct io_provide_buf *pbuf,
 			  struct io_buffer_list *bl)
 {
@@ -550,6 +573,7 @@ static int io_add_buffers(struct io_ring_ctx *ctx, struct io_provide_buf *pbuf,
 	return i ? 0 : -ENOMEM;
 }
 
+// Completes the process of providing buffers, making them available for immediate use.
 int io_provide_buffers(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_provide_buf *p = io_kiocb_to_cmd(req, struct io_provide_buf);
@@ -589,6 +613,7 @@ err:
 	return IOU_OK;
 }
 
+// Registers a ring buffer for kernel or user space use, linking it to a specific I/O context.
 int io_register_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 {
 	struct io_uring_buf_reg reg;
@@ -671,6 +696,7 @@ fail:
 	return ret;
 }
 
+//  Unregisters a ring buffer, detaching it from the context and cleaning up.
 int io_unregister_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 {
 	struct io_uring_buf_reg reg;
@@ -698,6 +724,7 @@ int io_unregister_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 	return 0;
 }
 
+// Registers the status of a provided buffer, marking its availability or completion state.
 int io_register_pbuf_status(struct io_ring_ctx *ctx, void __user *arg)
 {
 	struct io_uring_buf_status buf_status;
@@ -724,6 +751,7 @@ int io_register_pbuf_status(struct io_ring_ctx *ctx, void __user *arg)
 	return 0;
 }
 
+// Retrieves a mapped memory region for a provided buffer, linking it to user or kernel space.
 struct io_mapped_region *io_pbuf_get_region(struct io_ring_ctx *ctx,
 					    unsigned int bgid)
 {

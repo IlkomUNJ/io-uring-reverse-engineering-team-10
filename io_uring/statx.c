@@ -20,6 +20,7 @@ struct io_statx {
 	struct statx __user		*buffer;
 };
 
+// Prepares a statx request by extracting parameters from the submission queue entry (SQE) and validating them.
 int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 {
 	struct io_statx *sx = io_kiocb_to_cmd(req, struct io_statx);
@@ -50,6 +51,7 @@ int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
 	return 0;
 }
 
+// Executes the statx() system call to retrieve file information (timestamps, size, inode, etc.).
 int io_statx(struct io_kiocb *req, unsigned int issue_flags)
 {
 	struct io_statx *sx = io_kiocb_to_cmd(req, struct io_statx);
@@ -62,6 +64,7 @@ int io_statx(struct io_kiocb *req, unsigned int issue_flags)
 	return IOU_OK;
 }
 
+// Cleans up any resources or state associated with the statx request.
 void io_statx_cleanup(struct io_kiocb *req)
 {
 	struct io_statx *sx = io_kiocb_to_cmd(req, struct io_statx);
