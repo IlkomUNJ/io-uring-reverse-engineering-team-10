@@ -27,6 +27,7 @@ enum {
 	IO_SQ_THREAD_SHOULD_PARK,
 };
 
+// Wakes up the SQPOLL kernel thread if it’s parked due to inactivity.
 void io_sq_thread_unpark(struct io_sq_data *sqd)
 	__releases(&sqd->lock)
 {
@@ -43,6 +44,7 @@ void io_sq_thread_unpark(struct io_sq_data *sqd)
 	wake_up(&sqd->wait);
 }
 
+// Parks (suspends) the SQPOLL thread to conserve CPU when idle.
 void io_sq_thread_park(struct io_sq_data *sqd)
 	__acquires(&sqd->lock)
 {
@@ -54,6 +56,7 @@ void io_sq_thread_park(struct io_sq_data *sqd)
 	if (sqd->thread)
 		wake_up_process(sqd->thread);
 }
+
 
 void io_sq_thread_stop(struct io_sq_data *sqd)
 {
