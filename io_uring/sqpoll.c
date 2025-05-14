@@ -57,7 +57,7 @@ void io_sq_thread_park(struct io_sq_data *sqd)
 		wake_up_process(sqd->thread);
 }
 
-
+// Signals the SQPOLL thread to exit and stops polling activity.
 void io_sq_thread_stop(struct io_sq_data *sqd)
 {
 	WARN_ON_ONCE(sqd->thread == current);
@@ -71,6 +71,7 @@ void io_sq_thread_stop(struct io_sq_data *sqd)
 	wait_for_completion(&sqd->exited);
 }
 
+// Decrements the reference count of the SQPOLL context and frees it if it hits zero.
 void io_put_sq_data(struct io_sq_data *sqd)
 {
 	if (refcount_dec_and_test(&sqd->refs)) {
@@ -81,6 +82,7 @@ void io_put_sq_data(struct io_sq_data *sqd)
 	}
 }
 
+// Updates the idle time tracking for the SQPOLL thread.
 static __cold void io_sqd_update_thread_idle(struct io_sq_data *sqd)
 {
 	struct io_ring_ctx *ctx;
@@ -91,6 +93,7 @@ static __cold void io_sqd_update_thread_idle(struct io_sq_data *sqd)
 	sqd->sq_thread_idle = sq_thread_idle;
 }
 
+// Final cleanup routine run by the SQPOLL thread before it exits.
 void io_sq_thread_finish(struct io_ring_ctx *ctx)
 {
 	struct io_sq_data *sqd = ctx->sq_data;
@@ -106,6 +109,7 @@ void io_sq_thread_finish(struct io_ring_ctx *ctx)
 	}
 }
 
+// Attaches or initializes the SQPOLL thread context (`io_sq_data`) for a ring
 static struct io_sq_data *io_attach_sq_data(struct io_uring_params *p)
 {
 	struct io_ring_ctx *ctx_attach;
@@ -128,6 +132,7 @@ static struct io_sq_data *io_attach_sq_data(struct io_uring_params *p)
 	return sqd;
 }
 
+// Retrieves the global `io_sq_data` instance by ID (shared SQPOLL context).
 static struct io_sq_data *io_get_sq_data(struct io_uring_params *p,
 					 bool *attached)
 {
@@ -158,11 +163,13 @@ static struct io_sq_data *io_get_sq_data(struct io_uring_params *p,
 	return sqd;
 }
 
+// Checks if there are any pending events that require the SQPOLL thread to wake and process.
 static inline bool io_sqd_events_pending(struct io_sq_data *sqd)
 {
 	return READ_ONCE(sqd->state);
 }
 
+// Continuously polls the submission queue and processes new entries.
 static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
 {
 	unsigned int to_submit;
@@ -201,6 +208,7 @@ static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
 	return ret;
 }
 
+// Handles events (like wakeups or exit signals) directed to the SQPOLL thread.
 static bool io_sqd_handle_event(struct io_sq_data *sqd)
 {
 	bool did_sig = false;
@@ -224,6 +232,7 @@ static bool io_sqd_handle_event(struct io_sq_data *sqd)
  * than we were asked to process. Newly queued task_work isn't run until the
  * retry list has been fully processed.
  */
+// Executes any delayed task work associated with the SQPOLL thread.
 static unsigned int io_sq_tw(struct llist_node **retry_list, int max_entries)
 {
 	struct io_uring_task *tctx = current->io_uring;
@@ -242,6 +251,7 @@ out:
 	return count;
 }
 
+// Checks if there’s any task work waiting to be processed by the SQ thread.
 static bool io_sq_tw_pending(struct llist_node *retry_list)
 {
 	struct io_uring_task *tctx = current->io_uring;
@@ -249,6 +259,7 @@ static bool io_sq_tw_pending(struct llist_node *retry_list)
 	return retry_list || !llist_empty(&tctx->task_list);
 }
 
+// Updates work time statistics for the SQPOLL thread.
 static void io_sq_update_worktime(struct io_sq_data *sqd, struct rusage *start)
 {
 	struct rusage end;
@@ -260,6 +271,7 @@ static void io_sq_update_worktime(struct io_sq_data *sqd, struct rusage *start)
 	sqd->work_time += end.ru_stime.tv_usec + end.ru_stime.tv_sec * 1000000;
 }
 
+// Returns error on failure, or success after creating and attaching the thread.
 static int io_sq_thread(void *data)
 {
 	struct llist_node *retry_list = NULL;
@@ -392,6 +404,7 @@ err_out:
 	do_exit(0);
 }
 
+// Waits until the SQPOLL thread is ready and can start accepting work
 void io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
 {
 	DEFINE_WAIT(wait);
@@ -409,6 +422,7 @@ void io_sqpoll_wait_sq(struct io_ring_ctx *ctx)
 	finish_wait(&ctx->sqo_sq_wait, &wait);
 }
 
+// Sets up and initializes SQPOLL offload mode based on user parameters.
 __cold int io_sq_offload_create(struct io_ring_ctx *ctx,
 				struct io_uring_params *p)
 {
@@ -511,6 +525,7 @@ err:
 	return ret;
 }
 
+// Applies CPU affinity settings for the SQPOLL thread based on user-provided configuration.
 __cold int io_sqpoll_wq_cpu_affinity(struct io_ring_ctx *ctx,
 				     cpumask_var_t mask)
 {
